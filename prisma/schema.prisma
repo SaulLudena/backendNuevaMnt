@@ -1,0 +1,178 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model tb_categoria_curso {
+  id_categoria_curso     Int        @id @default(autoincrement())
+  nombre_categoria_curso String     @db.VarChar(100)
+  tb_curso               tb_curso[]
+}
+
+model tb_curso {
+  id_curso                   Int                @id @default(autoincrement())
+  nombre_curso               String             @db.VarChar(200)
+  descripcion_curso          String             @db.VarChar(1000)
+  objetivo_curso             String             @db.VarChar(1000)
+  metodolog_a_curso          Int                @map("metodología_curso")
+  precio_curso               Decimal            @db.Decimal(15, 2)
+  fecha_registro_curso       DateTime           @default(now()) @db.DateTime(0)
+  calificacion_curso         Int                @default(0)
+  url_imagen_principal_curso String             @db.VarChar(500)
+  url_imagen_banner_curso    String             @db.VarChar(500)
+  fk_id_categoria_curso      Int
+  fk_id_modalidad_curso      Int
+  fk_id_usuario_curso        Int
+  tb_categoria_curso         tb_categoria_curso @relation(fields: [fk_id_categoria_curso], references: [id_categoria_curso], onUpdate: Restrict, map: "tb_curso_ibfk_1")
+  tb_modalidad_curso         tb_modalidad_curso @relation(fields: [fk_id_modalidad_curso], references: [id_modalidad_curso], onUpdate: Restrict, map: "tb_curso_ibfk_2")
+  tb_usuario                 tb_usuario         @relation(fields: [fk_id_usuario_curso], references: [id_usuario], onUpdate: Restrict, map: "tb_curso_ibfk_3")
+  tb_modulo                  tb_modulo[]
+  tb_pedido_curso            tb_pedido_curso[]
+  tb_recursos                tb_recursos[]
+  tb_review                  tb_review[]
+
+  @@index([fk_id_categoria_curso], map: "fk_id_categoria_curso")
+  @@index([fk_id_usuario_curso], map: "fk_id_usuario_curso")
+  @@index([fk_id_modalidad_curso], map: "fk_id_modalidad_curso")
+}
+
+model tb_rol_usuario {
+  id_rol_usuario      Int          @id @default(autoincrement())
+  nombre_tipo_usuario String       @db.VarChar(100)
+  tb_usuario          tb_usuario[]
+}
+
+model tb_usuario {
+  id_usuario               Int                  @id @default(autoincrement())
+  nombre_usuario           String               @db.VarChar(100)
+  apellido_usuario         String               @db.VarChar(100)
+  nickname_usuario         String               @unique(map: "nickname_usuario") @db.VarChar(100)
+  contra_usuario           String               @db.VarChar(300)
+  contra_usuario_original  String               @db.VarChar(300)
+  fecha_registro_usuario   DateTime?            @db.DateTime(0)
+  fecha_nacimiento_usuario DateTime             @db.Date
+  estado_usuario           Boolean
+  fk_id_rol_usuario        Int
+  email_usuario            String               @unique(map: "email_usuario") @db.VarChar(200)
+  tb_curso                 tb_curso[]
+  tb_detalle_usuario       tb_detalle_usuario[]
+  tb_pedido_curso          tb_pedido_curso[]
+  tb_review                tb_review[]
+  tb_rol_usuario           tb_rol_usuario       @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], onUpdate: Restrict, map: "tb_usuario_ibfk_1")
+
+  @@index([fk_id_rol_usuario], map: "fk_id_rol_usuario")
+}
+
+model tb_detalle_usuario {
+  id_detalle_usuario       Int               @id @default(autoincrement())
+  telefono_detalle_usuario String            @db.VarChar(30)
+  pais_detalle_usuario     String            @db.VarChar(50)
+  provincia_usuario        String            @db.VarChar(50)
+  ocupacion_usuario        String            @db.VarChar(100)
+  url_foto_perfil_usuario  String            @db.VarChar(300)
+  url_foto_portada_usuario String            @db.VarChar(300)
+  fk_id_genero             Int
+  fk_id_tipo_documento     Int
+  fk_id_usuario            Int
+  tb_tipo_documento        tb_tipo_documento @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onUpdate: Restrict, map: "fk_id_tipo_documento")
+  tb_usuario               tb_usuario        @relation(fields: [fk_id_usuario], references: [id_usuario], onUpdate: Restrict, map: "fk_id_usuario")
+  tb_genero                tb_genero         @relation(fields: [fk_id_genero], references: [id_genero], onUpdate: Restrict, map: "fk_ig_genero")
+
+  @@index([fk_id_tipo_documento], map: "fk_id_tipo_documento")
+  @@index([fk_id_usuario], map: "fk_id_usuario")
+  @@index([fk_id_genero], map: "fk_ig_genero")
+}
+
+model tb_genero {
+  id_genero          Int                  @id @default(autoincrement())
+  nombre_genero      String               @db.VarChar(60)
+  tb_detalle_usuario tb_detalle_usuario[]
+}
+
+model tb_modalidad_curso {
+  id_modalidad_curso   Int        @id @default(autoincrement())
+  tipo_modalidad_curso String     @db.VarChar(200)
+  tb_curso             tb_curso[]
+}
+
+model tb_tipo_documento {
+  id_tipo_documento     Int                  @id @default(autoincrement())
+  nombre_tipo_documento String               @db.VarChar(60)
+  tb_detalle_usuario    tb_detalle_usuario[]
+}
+
+model tb_leccion {
+  id_leccion             Int       @id @default(autoincrement())
+  nombre_leccion         String    @db.VarChar(200)
+  descripcion_leccion    String    @db.VarChar(200)
+  url_video_leccion      String    @db.VarChar(1000)
+  fecha_registro_leccion DateTime  @default(now()) @db.DateTime(0)
+  progreso_leccion       Int       @default(0)
+  fk_id_modulo           Int
+  tb_modulo              tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onUpdate: Restrict, map: "tb_leccion_ibfk_1")
+
+  @@index([fk_id_modulo], map: "fk_id_modulo")
+}
+
+model tb_modulo {
+  id_modulo             Int          @id @default(autoincrement())
+  nombre_modulo         String       @db.VarChar(200)
+  fecha_registro_modulo DateTime     @default(now()) @db.DateTime(0)
+  fk_id_curso           Int
+  tb_leccion            tb_leccion[]
+  tb_curso              tb_curso     @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_modulo_ibfk_1")
+
+  @@index([fk_id_curso], map: "fk_id_curso")
+}
+
+model tb_pedido_curso {
+  id_pedido_curso               Int        @id @default(autoincrement())
+  fecha_generacion_pedido_curso DateTime   @default(now()) @db.DateTime(0)
+  monto_total_pedido_curso      Decimal    @db.Decimal(15, 2)
+  fk_id_usuario                 Int
+  fk_id_curso                   Int
+  tb_curso                      tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_pedido_curso_ibfk_1")
+  tb_usuario                    tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onUpdate: Restrict, map: "tb_pedido_curso_ibfk_2")
+  tb_venta                      tb_venta[]
+
+  @@index([fk_id_curso], map: "fk_id_curso")
+  @@index([fk_id_usuario], map: "fk_id_usuario")
+}
+
+model tb_recursos {
+  id_recurso             Int      @id @default(autoincrement())
+  nombre_recurso         String   @db.VarChar(200)
+  url_recurso            String   @db.VarChar(1000)
+  fecha_registro_recurso DateTime @default(now()) @db.DateTime(0)
+  fk_id_curso            Int
+  tb_curso               tb_curso @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_recursos_ibfk_1")
+
+  @@index([fk_id_curso], map: "fk_id_curso")
+}
+
+model tb_review {
+  id_review             Int        @id @default(autoincrement())
+  fecha_registro_review DateTime   @default(now()) @db.DateTime(0)
+  texto_review          String     @db.VarChar(2000)
+  fk_id_usuario         Int
+  fk_id_curso           Int
+  tb_usuario            tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onUpdate: Restrict, map: "tb_review_ibfk_1")
+  tb_curso              tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_review_ibfk_2")
+
+  @@index([fk_id_curso], map: "fk_id_curso")
+  @@index([fk_id_usuario], map: "fk_id_usuario")
+}
+
+model tb_venta {
+  id_venta               Int             @id @default(autoincrement())
+  fecha_generacion_venta DateTime        @default(now()) @db.DateTime(0)
+  fk_id_pedido           Int
+  tb_pedido_curso        tb_pedido_curso @relation(fields: [fk_id_pedido], references: [id_pedido_curso], onUpdate: Restrict, map: "tb_venta_ibfk_1")
+
+  @@index([fk_id_pedido], map: "fk_id_pedido")
+}

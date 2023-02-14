@@ -76,10 +76,9 @@ routes.post("/registerUser", async (req, res) => {
 //este metodo sirve para llamar la informacion de un usuario
 //en base a un id desencriptado
 //llamará a su Nombre, apodo Rol, Imagen
-routes.post("/userPublicData", async (req, res) => {
+routes.post("/getUserData", async (req, res) => {
+  const { nuevamentetoken } = req.body;
   try {
-    const { nuevamentetoken } = req.body;
-
     jwt.verify(
       nuevamentetoken,
       process.env.SECRET_KEY,
@@ -88,10 +87,34 @@ routes.post("/userPublicData", async (req, res) => {
           res.status(401).json();
         } else {
           const { id } = decoded;
-          res.json(id);
-          await prisma.tb_curso.findMany({
-            where: {},
+          const user = await prisma.tb_usuario.findUnique({
+            where: { id_usuario: id },
+            include: {
+              tb_detalle_usuario: true,
+              tb_rol_usuario: true,
+            },
           });
+
+          const userInfo = {
+            nombre_usuario: user.nombre_usuario,
+            apellido_usuario: user.apellido_usuario,
+            nickname_usuario: user.nickname_usuario,
+            rol_usuario: user.tb_rol_usuario.nombre_tipo_usuario,
+            telefono_detalle_usuario:
+              user.tb_detalle_usuario.telefono_detalle_usuario,
+            pais_detalle_usuario:
+              user.tb_detalle_usuario[0].pais_detalle_usuario,
+            provincia_usuario: user.tb_detalle_usuario[0].provincia_usuario,
+            ocupacion_usuario: user.tb_detalle_usuario[0].ocupacion_usuario,
+            numero_documento_usuario:
+              user.tb_detalle_usuario[0].numero_documento_usuario,
+            url_foto_perfil_usuario:
+              user.tb_detalle_usuario[0].url_foto_perfil_usuario,
+            url_foto_portada_usuario:
+              user.tb_detalle_usuario[0].url_foto_portada_usuario,
+          };
+          console.log(user);
+          res.json({ userInfo });
         }
       }
     );

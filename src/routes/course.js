@@ -3,7 +3,7 @@ const routes = express.Router();
 const { PrismaClient, Prisma } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-/*metodo para agregar un curso*/
+/*metodo para agregar un curso por un docente*/
 routes.post("/registerNewCourse", async (req, res) => {
   try {
     const courseData = {
@@ -38,4 +38,5 @@ routes.post("/registerNewCourse", async (req, res) => {
   }
 });
 
+/*metodo para listar todos los cursos*/
 module.exports = routes;

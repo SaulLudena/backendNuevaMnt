@@ -45,6 +45,17 @@ routes.post("/registerUser", async (req, res) => {
           estado_usuario: userData.estado_usuario,
           fk_id_rol_usuario: userData.fk_id_rol_usuario,
           email_usuario: userData.email_usuario,
+
+          telefono_detalle_usuario: "",
+          pais_detalle_usuario: "",
+          provincia_usuario: "",
+          ocupacion_usuario: "",
+          url_foto_perfil_usuario:
+            "https://res.cloudinary.com/dbtzbuew2/image/upload/v1671035838/cld-sample.jpg",
+          url_foto_portada_usuario: "",
+          fk_id_genero: 4,
+          fk_id_tipo_documento: 4,
+          numero_documento_usuario: "",
         },
       });
 
@@ -90,7 +101,6 @@ routes.post("/getUserData", async (req, res) => {
           const user = await prisma.tb_usuario.findUnique({
             where: { id_usuario: id },
             include: {
-              tb_detalle_usuario: true,
               tb_rol_usuario: true,
             },
           });
@@ -100,20 +110,16 @@ routes.post("/getUserData", async (req, res) => {
             apellido_usuario: user.apellido_usuario,
             nickname_usuario: user.nickname_usuario,
             rol_usuario: user.tb_rol_usuario.nombre_tipo_usuario,
-            telefono_detalle_usuario:
-              user.tb_detalle_usuario.telefono_detalle_usuario,
-            pais_detalle_usuario:
-              user.tb_detalle_usuario[0].pais_detalle_usuario,
-            provincia_usuario: user.tb_detalle_usuario[0].provincia_usuario,
-            ocupacion_usuario: user.tb_detalle_usuario[0].ocupacion_usuario,
-            numero_documento_usuario:
-              user.tb_detalle_usuario[0].numero_documento_usuario,
-            url_foto_perfil_usuario:
-              user.tb_detalle_usuario[0].url_foto_perfil_usuario,
-            url_foto_portada_usuario:
-              user.tb_detalle_usuario[0].url_foto_portada_usuario,
+            telefono_detalle_usuario: user.telefono_detalle_usuario,
+            pais_detalle_usuario: user.pais_detalle_usuario,
+            provincia_usuario: user.provincia_usuario,
+
+            ocupacion_usuario: user.ocupacion_usuario,
+            numero_documento_usuario: user.numero_documento_usuario,
+            url_foto_perfil_usuario: user.url_foto_perfil_usuario,
+            url_foto_portada_usuario: user.url_foto_portada_usuario,
           };
-          console.log(user);
+
           res.json({ userInfo });
         }
       }

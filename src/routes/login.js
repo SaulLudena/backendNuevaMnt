@@ -36,7 +36,7 @@ routes.post("/login", async (req, res) => {
                 status: 200,
               };
               const token = jwt.sign(userDataWithJwt, process.env.SECRET_KEY, {
-                expiresIn: "3h",
+                expiresIn: "10h",
               });
 
               return res.json({

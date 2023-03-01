@@ -125,7 +125,7 @@ routes.post("/getUserData", async (req, res) => {
       }
     );
   } catch (error) {
-    res.json({ message: "algo pasó" });
+    res.json({ error });
   }
 });
 //este metodo sirve para llamar la meta informacion de un usuario

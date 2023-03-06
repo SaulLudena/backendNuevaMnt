@@ -1,6 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -37,65 +36,14 @@ model tb_curso {
   tb_review                  tb_review[]
 
   @@index([fk_id_categoria_curso], map: "fk_id_categoria_curso")
-  @@index([fk_id_usuario_curso], map: "fk_id_usuario_curso")
   @@index([fk_id_modalidad_curso], map: "fk_id_modalidad_curso")
-}
-
-model tb_rol_usuario {
-  id_rol_usuario      Int          @id @default(autoincrement())
-  nombre_tipo_usuario String       @db.VarChar(100)
-  tb_usuario          tb_usuario[]
-}
-
-model tb_usuario {
-  id_usuario               Int                @id @default(autoincrement())
-  nombre_usuario           String             @db.VarChar(100)
-  apellido_usuario         String             @db.VarChar(100)
-  nickname_usuario         String             @unique(map: "nickname_usuario") @db.VarChar(100)
-  contra_usuario           String             @db.VarChar(300)
-  contra_usuario_original  String             @db.VarChar(300)
-  fecha_registro_usuario   DateTime?          @db.DateTime(0)
-  fecha_nacimiento_usuario DateTime           @db.Date
-  estado_usuario           Boolean
-  fk_id_rol_usuario        Int
-  email_usuario            String             @unique(map: "email_usuario") @db.VarChar(200)
-  telefono_detalle_usuario String?            @db.VarChar(30)
-  pais_detalle_usuario     String?            @db.VarChar(50)
-  provincia_usuario        String?            @db.VarChar(50)
-  ocupacion_usuario        String?            @db.VarChar(100)
-  url_foto_perfil_usuario  String?            @db.VarChar(300)
-  url_foto_portada_usuario String?            @db.VarChar(300)
-  fk_id_genero             Int?
-  fk_id_tipo_documento     Int?
-  numero_documento_usuario String?            @db.VarChar(20)
-  tb_curso                 tb_curso[]
-  tb_pedido_curso          tb_pedido_curso[]
-  tb_review                tb_review[]
-  tb_rol_usuario           tb_rol_usuario     @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], onUpdate: Restrict, map: "tb_usuario_ibfk_1")
-  tb_genero                tb_genero?         @relation(fields: [fk_id_genero], references: [id_genero], onDelete: Restrict, onUpdate: Restrict, map: "tb_usuario_ibfk_2")
-  tb_tipo_documento        tb_tipo_documento? @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onDelete: Restrict, onUpdate: Restrict, map: "tb_usuario_ibfk_3")
-
-  @@index([fk_id_rol_usuario], map: "fk_id_rol_usuario")
-  @@index([fk_id_genero], map: "fk_id_genero")
-  @@index([fk_id_tipo_documento], map: "fk_id_tipo_documento")
+  @@index([fk_id_usuario_curso], map: "fk_id_usuario_curso")
 }
 
 model tb_genero {
   id_genero     Int          @id @default(autoincrement())
   nombre_genero String       @db.VarChar(60)
   tb_usuario    tb_usuario[]
-}
-
-model tb_modalidad_curso {
-  id_modalidad_curso   Int        @id @default(autoincrement())
-  tipo_modalidad_curso String     @db.VarChar(200)
-  tb_curso             tb_curso[]
-}
-
-model tb_tipo_documento {
-  id_tipo_documento     Int          @id @default(autoincrement())
-  nombre_tipo_documento String       @db.VarChar(60)
-  tb_usuario            tb_usuario[]
 }
 
 model tb_leccion {
@@ -109,6 +57,12 @@ model tb_leccion {
   tb_modulo              tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onUpdate: Restrict, map: "tb_leccion_ibfk_1")
 
   @@index([fk_id_modulo], map: "fk_id_modulo")
+}
+
+model tb_modalidad_curso {
+  id_modalidad_curso   Int        @id @default(autoincrement())
+  tipo_modalidad_curso String     @db.VarChar(200)
+  tb_curso             tb_curso[]
 }
 
 model tb_modulo {
@@ -158,6 +112,51 @@ model tb_review {
 
   @@index([fk_id_curso], map: "fk_id_curso")
   @@index([fk_id_usuario], map: "fk_id_usuario")
+}
+
+model tb_rol_usuario {
+  id_rol_usuario      Int          @id @default(autoincrement())
+  nombre_tipo_usuario String       @db.VarChar(100)
+  tb_usuario          tb_usuario[]
+}
+
+model tb_tipo_documento {
+  id_tipo_documento     Int          @id @default(autoincrement())
+  nombre_tipo_documento String       @db.VarChar(60)
+  tb_usuario            tb_usuario[]
+}
+
+model tb_usuario {
+  id_usuario               Int                @id @default(autoincrement())
+  nombre_usuario           String             @db.VarChar(100)
+  apellido_usuario         String             @db.VarChar(100)
+  nickname_usuario         String             @unique(map: "nickname_usuario") @db.VarChar(100)
+  contra_usuario           String             @db.VarChar(300)
+  contra_usuario_original  String             @db.VarChar(300)
+  fecha_registro_usuario   DateTime?          @db.DateTime(0)
+  fecha_nacimiento_usuario DateTime           @db.Date
+  estado_usuario           Boolean
+  fk_id_rol_usuario        Int
+  email_usuario            String             @unique(map: "email_usuario") @db.VarChar(200)
+  telefono_detalle_usuario String?            @db.VarChar(30)
+  pais_detalle_usuario     String?            @db.VarChar(50)
+  provincia_usuario        String?            @db.VarChar(50)
+  ocupacion_usuario        String?            @db.VarChar(100)
+  url_foto_perfil_usuario  String?            @db.VarChar(300)
+  url_foto_portada_usuario String?            @db.VarChar(300)
+  fk_id_genero             Int?
+  fk_id_tipo_documento     Int?
+  numero_documento_usuario String?            @db.VarChar(20)
+  tb_curso                 tb_curso[]
+  tb_pedido_curso          tb_pedido_curso[]
+  tb_review                tb_review[]
+  tb_rol_usuario           tb_rol_usuario     @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], onUpdate: Restrict, map: "tb_usuario_ibfk_1")
+  tb_genero                tb_genero?         @relation(fields: [fk_id_genero], references: [id_genero], onDelete: Restrict, onUpdate: Restrict, map: "tb_usuario_ibfk_2")
+  tb_tipo_documento        tb_tipo_documento? @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onDelete: Restrict, onUpdate: Restrict, map: "tb_usuario_ibfk_3")
+
+  @@index([fk_id_genero], map: "fk_id_genero")
+  @@index([fk_id_rol_usuario], map: "fk_id_rol_usuario")
+  @@index([fk_id_tipo_documento], map: "fk_id_tipo_documento")
 }
 
 model tb_venta {

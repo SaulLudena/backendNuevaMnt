@@ -38,5 +38,17 @@ routes.post("/registerNewCourse", async (req, res) => {
   }
 });
 
+routes.get("/getAllCoursesToBuy", async (req, res) => {
+  try {
+    const getAllCoursesToBuy = await prisma.tb_curso.findMany({
+      include: {
+        tb_usuario: true,
+      },
+    });
+    res.json({ getAllCoursesToBuy: getAllCoursesToBuy });
+  } catch (error) {
+    console.log(error);
+  }
+});
 /*metodo para listar todos los cursos*/
 module.exports = routes;

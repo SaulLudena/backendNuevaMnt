@@ -128,9 +128,44 @@ routes.post("/getUserData", async (req, res) => {
     res.json({ error });
   }
 });
+//este metodo sirve para traer el tipo de estudiante [alumno,admin,docente]
+routes.post("/validateUserType", async (req, res) => {
+  const { nuevamentetoken } = req.body;
+  console.log(req.body);
+  /*  try {
+    jwt.verify(
+      nuevamentetoken,
+      process.env.SECRET_KEY,
+      async (err, decoded) => {
+        if (err) {
+          res.status(401).json();
+        } else {
+          const { id } = decoded;
+          const user = await prisma.tb_usuario.findUnique({
+            where: { id_usuario: id },
+            include: {
+              tb_rol_usuario: true,
+            },
+          });
+
+          const userInfo = {
+            id_tipo_usuario: user.fk_id_rol_usuario,
+            rol_usuario: user.tb_rol_usuario.nombre_tipo_usuario,
+          };
+
+          res.json({ userInfo });
+        }
+      }
+    );
+  } catch (error) {
+    res.json({ error });
+  } */
+});
+
 //este metodo sirve para llamar la meta informacion de un usuario
 routes.get("/userMetaInfo");
 
+//este metodo sirve para recuperar la contrasenia deun usuario
 routes.post("/recoverPassword", async (req, res) => {
   /*
   1-Recuperar email
@@ -144,6 +179,7 @@ routes.post("/recoverPassword", async (req, res) => {
   */
 });
 
+//este metodo sirve para validar en tiempo real los correos y nombre de usuarios unicos
 routes.get("/verifyEmailAndNickName", async (req, res) => {
   const validationFieldForms = await prisma.tb_usuario.findMany({
     select: {
@@ -154,4 +190,5 @@ routes.get("/verifyEmailAndNickName", async (req, res) => {
 
   res.json(validationFieldForms);
 });
+
 module.exports = routes;

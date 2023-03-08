@@ -131,8 +131,8 @@ routes.post("/getUserData", async (req, res) => {
 //este metodo sirve para traer el tipo de estudiante [alumno,admin,docente]
 routes.post("/validateUserType", async (req, res) => {
   const { nuevamentetoken } = req.body;
-  console.log(req.body);
-  /*  try {
+  console.log(nuevamentetoken);
+  try {
     jwt.verify(
       nuevamentetoken,
       process.env.SECRET_KEY,
@@ -159,7 +159,7 @@ routes.post("/validateUserType", async (req, res) => {
     );
   } catch (error) {
     res.json({ error });
-  } */
+  }
 });
 
 //este metodo sirve para llamar la meta informacion de un usuario

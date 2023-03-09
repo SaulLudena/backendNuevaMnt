@@ -131,7 +131,6 @@ routes.post("/getUserData", async (req, res) => {
 //este metodo sirve para traer el tipo de estudiante [alumno,admin,docente]
 routes.post("/validateUserType", async (req, res) => {
   const { nuevamentetoken } = req.body;
-  console.log(nuevamentetoken);
   try {
     jwt.verify(
       nuevamentetoken,

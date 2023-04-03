@@ -2,7 +2,7 @@ const express = require("express");
 const routes = express.Router();
 const { PrismaClient, Prisma } = require("@prisma/client");
 const prisma = new PrismaClient();
-
+const jwt = require("jsonwebtoken");
 /*metodo para agregar un curso por un docente*/
 routes.post("/registerNewCourse", async (req, res) => {
   try {
@@ -38,6 +38,23 @@ routes.post("/registerNewCourse", async (req, res) => {
   }
 });
 
+routes.post("/addNewCourse", async (req, res) => {
+  try {
+    /*algoritmo para almacenar un curso
+    -recuperar el id del token
+    -recuperar el objeto curso
+    -si todo sale bien enviar un status 200 y un mensaje de confirmacion de registro de curso para mostrarlo en el frontend
+    */
+
+    const { data, nuevamntToken } = req.body;
+    let id;
+    jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
+      err ? res.status(401).json() : (id = decoded.id);
+    });
+    console.log(`El codigo del profesor es ${id}`);
+    const addNewCourse = await prisma.tb_curso.create();
+  } catch (error) {}
+});
 routes.get("/getAllCoursesToBuy", async (req, res) => {
   try {
     const getAllCoursesToBuy = await prisma.tb_curso.findMany({

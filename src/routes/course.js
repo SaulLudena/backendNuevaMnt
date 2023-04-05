@@ -1,6 +1,6 @@
 const express = require("express");
 const routes = express.Router();
-const { PrismaClient, Prisma } = require("@prisma/client");
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const horaActual = require("../config/date");
@@ -41,12 +41,6 @@ routes.post("/registerNewCourse", async (req, res) => {
 
 routes.post("/addNewCourse", async (req, res) => {
   try {
-    /*algoritmo para almacenar un curso
-    -recuperar el id del token
-    -recuperar el objeto curso
-    -si todo sale bien enviar un status 200 y un mensaje de confirmacion de registro de curso para mostrarlo en el frontend
-    */
-
     const { data, nuevamntToken } = req.body;
     let id;
     if (nuevamntToken !== undefined) {
@@ -58,25 +52,43 @@ routes.post("/addNewCourse", async (req, res) => {
         slug_curso: data.slug_curso,
         descripcion_curso: data.descripcion_curso,
         categoria_curso: data.categoria_curso,
-        precio_curso: data.precio_curso,
+        tipo_precio_curso: data.precio_curso,
+        precio_regular_curso: data.precio_regular,
+        precio_descuento_curso: data.precio_descuento_curso,
         que_aprendere_curso: data.que_aprendere_curso,
         publico_objetivo_curso: data.publico_objetivo_curso,
         duracion_horas_curso: data.duracion_horas_curso,
         duracion_minutos_curso: data.duracion_minutos_curso,
         materiales_incluidos_curso: data.materiales_incluidos_curso,
         etiquetas_curso: data.etiquetas_curso,
-        precio_curso: data.precio_curso,
         fecha_registro_curso: new Date(horaActual),
         calificacion_curso: 0,
         thumbnail_curso: data.thumbnail_curso,
         fk_id_categoria_curso: data.fk_id_categoria_curso,
-        /*aclarar la parte de tipo de pago */
+        fk_id_usuario_curso: id,
       };
-      res.json({
-        status: 200,
-        message: "curso agregado correctamente",
+      const addNewCourse = await prisma.tb_curso.create({
+        data: {
+          nombre_curso: courseObject.nombre_curso,
+          slug_curso: courseObject.slug_curso,
+          descripcion_curso: courseObject.descripcion_curso,
+          tipo_precio_curso: courseObject.tipo_precio_curso,
+          precio_regular_curso: courseObject.precio_regular_curso,
+          precio_descuento_curso: courseObject.precio_descuento_curso,
+          que_aprendere_curso: courseObject.que_aprendere_curso,
+          publico_objetivo_curso: courseObject.que_aprendere_curso,
+          duracion_horas_curso: courseObject.duracion_horas_curso,
+          duracion_minutos_curso: courseObject.duracion_minutos_curso,
+          materiales_incluidos_curso: courseObject.materiales_incluidos_curso,
+          etiquetas_curso: courseObject.etiquetas_curso,
+          fecha_registro_curso: courseObject.fecha_registro_curso,
+          calificacion_curso: courseObject.calificacion_curso,
+          thumbnail_curso: courseObject.thumbnail_curso,
+          fk_id_usuario_curso: courseObject.fk_id_categoria_curso,
+        },
       });
-      console.log(data);
+
+      res.json("ok");
     }
   } catch (error) {
     console.log(error);

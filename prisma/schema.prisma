@@ -16,19 +16,23 @@ model tb_categoria_curso {
 model tb_curso {
   id_curso                   Int                @id @default(autoincrement())
   nombre_curso               String             @db.VarChar(200)
+  slug_curso                 String             @db.VarChar(200)
   descripcion_curso          String             @db.VarChar(1000)
-  objetivo_curso             String             @db.VarChar(1000)
-  metodolog_a_curso          String             @map("metodología_curso") @db.VarChar(1000)
-  precio_curso               Decimal            @db.Decimal(15, 2)
+  tipo_precio_curso          Bytes              @db.Binary(1)
+  precio_regular_curso       Decimal            @db.Decimal(15, 2)
+  precio_descuento_curso     Decimal            @db.Decimal(15, 2)
+  que_aprendere_curso        String             @db.VarChar(1000)
+  publico_objetivo_curso     String             @db.VarChar(500)
+  duracion_horas_curso       Int
+  duracion_minutos_curso     Int
+  materiales_incluidos_curso Int
+  etiquetas_curso            Int
   fecha_registro_curso       DateTime           @default(now()) @db.DateTime(0)
   calificacion_curso         Int                @default(0)
   url_imagen_principal_curso String             @db.VarChar(500)
-  url_imagen_banner_curso    String             @db.VarChar(500)
   fk_id_categoria_curso      Int
-  fk_id_modalidad_curso      Int
   fk_id_usuario_curso        Int
   tb_categoria_curso         tb_categoria_curso @relation(fields: [fk_id_categoria_curso], references: [id_categoria_curso], onUpdate: Restrict, map: "tb_curso_ibfk_1")
-  tb_modalidad_curso         tb_modalidad_curso @relation(fields: [fk_id_modalidad_curso], references: [id_modalidad_curso], onUpdate: Restrict, map: "tb_curso_ibfk_2")
   tb_usuario                 tb_usuario         @relation(fields: [fk_id_usuario_curso], references: [id_usuario], onUpdate: Restrict, map: "tb_curso_ibfk_3")
   tb_modulo                  tb_modulo[]
   tb_pedido_curso            tb_pedido_curso[]
@@ -36,7 +40,6 @@ model tb_curso {
   tb_review                  tb_review[]
 
   @@index([fk_id_categoria_curso], map: "fk_id_categoria_curso")
-  @@index([fk_id_modalidad_curso], map: "fk_id_modalidad_curso")
   @@index([fk_id_usuario_curso], map: "fk_id_usuario_curso")
 }
 
@@ -47,27 +50,30 @@ model tb_genero {
 }
 
 model tb_leccion {
-  id_leccion             Int       @id @default(autoincrement())
-  nombre_leccion         String    @db.VarChar(200)
-  descripcion_leccion    String    @db.VarChar(200)
-  url_video_leccion      String    @db.VarChar(1000)
-  fecha_registro_leccion DateTime  @default(now()) @db.DateTime(0)
-  progreso_leccion       Int       @default(0)
-  fk_id_modulo           Int
-  tb_modulo              tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onUpdate: Restrict, map: "tb_leccion_ibfk_1")
+  id_leccion               Int       @id @default(autoincrement())
+  nombre_leccion           String    @db.VarChar(200)
+  descripcion_leccion      String    @db.VarChar(200)
+  imagen_destacada_leccion String    @db.VarChar(300)
+  url_video_leccion        String    @db.VarChar(1000)
+  duracion_hora_leccion    Int
+  duracion_minuto_leccion  Int
+  duracion_segundo_leccion Int
+  fecha_registro_leccion   DateTime  @default(now()) @db.DateTime(0)
+  progreso_leccion         Int       @default(0)
+  fk_id_modulo             Int
+  tb_modulo                tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onUpdate: Restrict, map: "tb_leccion_ibfk_1")
 
   @@index([fk_id_modulo], map: "fk_id_modulo")
 }
 
 model tb_modalidad_curso {
-  id_modalidad_curso   Int        @id @default(autoincrement())
-  tipo_modalidad_curso String     @db.VarChar(200)
-  tb_curso             tb_curso[]
+  id_modalidad_curso Int @id @default(autoincrement())
 }
 
 model tb_modulo {
   id_modulo             Int          @id @default(autoincrement())
   nombre_modulo         String       @db.VarChar(200)
+  resumen_modulo        String       @db.VarChar(200)
   fecha_registro_modulo DateTime     @default(now()) @db.DateTime(0)
   fk_id_curso           Int
   tb_leccion            tb_leccion[]

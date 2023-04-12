@@ -20,7 +20,7 @@ routes.post("/addNewCourse", async (req, res) => {
         slug_curso: data.slug_curso,
         descripcion_curso: data.descripcion_curso,
         categoria_curso: parseInt(data.categoria_curso),
-        tipo_precio_curso: Boolean(data.precio_curso),
+        tipo_precio_curso: data.precio_curso,
         precio_regular_curso: parseInt(data.precio_regular),
         precio_descuento_curso: parseInt(data.precio_descuento),
         que_aprendere_curso: data.que_aprendere_curso,
@@ -33,9 +33,9 @@ routes.post("/addNewCourse", async (req, res) => {
         calificacion_curso: 0,
         thumbnail_curso: data.thumbnail_curso,
         fk_id_categoria_curso: parseInt(data.categoria_curso),
-        fk_id_usuario_curso: parseInt(id),
+        fk_id_usuario_curso: id,
       };
-
+      console.log(courseObject);
       const addNewCourse = await prisma.tb_curso.create({
         data: {
           nombre_curso: courseObject.nombre_curso,
@@ -52,13 +52,23 @@ routes.post("/addNewCourse", async (req, res) => {
           etiquetas_curso: courseObject.etiquetas_curso,
           fecha_registro_curso: courseObject.fecha_registro_curso,
           calificacion_curso: courseObject.calificacion_curso,
-          url_imagen_principal_curso: courseObject.thumbnail_curso,
-          fk_id_categoria_curso: courseObject.fk_id_categoria_curso,
-          fk_id_usuario_curso: courseObject.fk_id_usuario_curso,
+          url_imagen_principal_curso: "",
+          tb_categoria_curso: {
+            connect: {
+              id_categoria_curso: courseObject.fk_id_categoria_curso,
+            },
+          },
+          tb_usuario: {
+            connect: {
+              id_usuario: courseObject.fk_id_usuario_curso,
+            },
+          },
         },
       });
-      console.log(addNewCourse);
-      res.json(addNewCourse);
+      res.json({
+        status: 200,
+        message: "Curso agregado correctamente",
+      });
     }
   } catch (error) {
     console.log(error);

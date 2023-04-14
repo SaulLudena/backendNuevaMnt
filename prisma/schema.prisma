@@ -14,38 +14,31 @@ model tb_categoria_curso {
 }
 
 model tb_curso {
-  id_curso                       Int                @id @default(autoincrement())
-  nombre_curso                   String             @db.VarChar(200)
-  slug_curso                     Int
-  descripcion_curso              String             @db.VarChar(1000)
-  tipo_precio_curso              Bytes              @db.Binary(1)
-  objetivo_curso                 String             @db.VarChar(1000)
-  metodolog_a_curso              String             @map("metodología_curso") @db.VarChar(1000)
-  que_aprendere_curso            String             @db.VarChar(1000)
-  publico_objetivo_curso         String             @db.VarChar(500)
-  duracion_horas_curso           Int
-  duracion_minutos_curso         Int
-  materiales_incluidos_          Int
-  requisitos_instrucciones_curso Int                @map("requisitos instrucciones_curso")
-  etiquetas_curso                Int
-  precio_curso                   Decimal            @db.Decimal(15, 2)
-  fecha_registro_curso           DateTime           @default(now()) @db.DateTime(0)
-  calificacion_curso             Int                @default(0)
-  url_imagen_principal_curso     String             @db.VarChar(500)
-  url_imagen_banner_curso        String             @db.VarChar(500)
-  fk_id_categoria_curso          Int
-  fk_id_modalidad_curso          Int
-  fk_id_usuario_curso            Int
-  tb_categoria_curso             tb_categoria_curso @relation(fields: [fk_id_categoria_curso], references: [id_categoria_curso], onUpdate: Restrict, map: "tb_curso_ibfk_1")
-  tb_modalidad_curso             tb_modalidad_curso @relation(fields: [fk_id_modalidad_curso], references: [id_modalidad_curso], onUpdate: Restrict, map: "tb_curso_ibfk_2")
-  tb_usuario                     tb_usuario         @relation(fields: [fk_id_usuario_curso], references: [id_usuario], onUpdate: Restrict, map: "tb_curso_ibfk_3")
-  tb_modulo                      tb_modulo[]
-  tb_pedido_curso                tb_pedido_curso[]
-  tb_recursos                    tb_recursos[]
-  tb_review                      tb_review[]
-
+  id_curso                   Int                @id @default(autoincrement())
+  nombre_curso               String             @db.VarChar(200)
+  slug_curso                 String             @db.VarChar(200)
+  descripcion_curso          String             @db.VarChar(1000)
+  tipo_precio_curso          String             @db.VarChar(20)              
+  precio_regular_curso       Decimal            @db.Decimal(15, 2)
+  precio_descuento_curso     Decimal            @db.Decimal(15, 2)
+  que_aprendere_curso        String             @db.VarChar(1000)
+  publico_objetivo_curso     String             @db.VarChar(500)
+  duracion_horas_curso       Int
+  duracion_minutos_curso     Int
+  materiales_incluidos_curso String             @db.VarChar(500)
+  etiquetas_curso            String             @db.VarChar(500)
+  fecha_registro_curso       DateTime?          @db.DateTime(0)
+  calificacion_curso         Int                @default(0)
+  url_imagen_principal_curso String?             @db.VarChar(500)
+  fk_id_categoria_curso      Int
+  fk_id_usuario_curso        Int
+  tb_categoria_curso         tb_categoria_curso @relation(fields: [fk_id_categoria_curso], references: [id_categoria_curso], onUpdate: Restrict, map: "tb_curso_ibfk_1")
+  tb_usuario                 tb_usuario         @relation(fields: [fk_id_usuario_curso], references: [id_usuario], onUpdate: Restrict, map: "tb_curso_ibfk_3")
+  tb_modulo                  tb_modulo[]
+  tb_pedido_curso            tb_pedido_curso[]
+  tb_recursos                tb_recursos[]
+  tb_review                  tb_review[]
   @@index([fk_id_categoria_curso], map: "fk_id_categoria_curso")
-  @@index([fk_id_modalidad_curso], map: "fk_id_modalidad_curso")
   @@index([fk_id_usuario_curso], map: "fk_id_usuario_curso")
 }
 
@@ -56,22 +49,23 @@ model tb_genero {
 }
 
 model tb_leccion {
-  id_leccion             Int       @id @default(autoincrement())
-  nombre_leccion         String    @db.VarChar(200)
-  descripcion_leccion    String    @db.VarChar(200)
-  url_video_leccion      String    @db.VarChar(1000)
-  fecha_registro_leccion DateTime  @default(now()) @db.DateTime(0)
-  progreso_leccion       Int       @default(0)
-  fk_id_modulo           Int
-  tb_modulo              tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onUpdate: Restrict, map: "tb_leccion_ibfk_1")
-
+  id_leccion               Int       @id @default(autoincrement())
+  nombre_leccion           String    @db.VarChar(200)
+  descripcion_leccion      String    @db.VarChar(200)
+  imagen_destacada_leccion String    @db.VarChar(300)
+  url_video_leccion        String    @db.VarChar(1000)
+  duracion_hora_leccion    Int
+  duracion_minuto_leccion  Int
+  duracion_segundo_leccion Int
+  fecha_registro_leccion   DateTime  @default(now()) @db.DateTime(0)
+  progreso_leccion         Int       @default(0)
+  fk_id_modulo             Int
+  tb_modulo                tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onUpdate: Restrict, map: "tb_leccion_ibfk_1")
   @@index([fk_id_modulo], map: "fk_id_modulo")
 }
 
 model tb_modalidad_curso {
-  id_modalidad_curso   Int        @id @default(autoincrement())
-  tipo_modalidad_curso String     @db.VarChar(200)
-  tb_curso             tb_curso[]
+  id_modalidad_curso Int @id @default(autoincrement())
 }
 
 model tb_modulo {
@@ -82,7 +76,6 @@ model tb_modulo {
   fk_id_curso           Int
   tb_leccion            tb_leccion[]
   tb_curso              tb_curso     @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_modulo_ibfk_1")
-
   @@index([fk_id_curso], map: "fk_id_curso")
 }
 
@@ -95,7 +88,6 @@ model tb_pedido_curso {
   tb_curso                      tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_pedido_curso_ibfk_1")
   tb_usuario                    tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onUpdate: Restrict, map: "tb_pedido_curso_ibfk_2")
   tb_venta                      tb_venta[]
-
   @@index([fk_id_curso], map: "fk_id_curso")
   @@index([fk_id_usuario], map: "fk_id_usuario")
 }
@@ -107,7 +99,6 @@ model tb_recursos {
   fecha_registro_recurso DateTime @default(now()) @db.DateTime(0)
   fk_id_curso            Int
   tb_curso               tb_curso @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_recursos_ibfk_1")
-
   @@index([fk_id_curso], map: "fk_id_curso")
 }
 
@@ -119,7 +110,6 @@ model tb_review {
   fk_id_curso           Int
   tb_usuario            tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onUpdate: Restrict, map: "tb_review_ibfk_1")
   tb_curso              tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Restrict, map: "tb_review_ibfk_2")
-
   @@index([fk_id_curso], map: "fk_id_curso")
   @@index([fk_id_usuario], map: "fk_id_usuario")
 }
@@ -163,7 +153,6 @@ model tb_usuario {
   tb_rol_usuario           tb_rol_usuario     @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], onUpdate: Restrict, map: "tb_usuario_ibfk_1")
   tb_genero                tb_genero?         @relation(fields: [fk_id_genero], references: [id_genero], onDelete: Restrict, onUpdate: Restrict, map: "tb_usuario_ibfk_2")
   tb_tipo_documento        tb_tipo_documento? @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onDelete: Restrict, onUpdate: Restrict, map: "tb_usuario_ibfk_3")
-
   @@index([fk_id_genero], map: "fk_id_genero")
   @@index([fk_id_rol_usuario], map: "fk_id_rol_usuario")
   @@index([fk_id_tipo_documento], map: "fk_id_tipo_documento")
@@ -174,6 +163,5 @@ model tb_venta {
   fecha_generacion_venta DateTime        @default(now()) @db.DateTime(0)
   fk_id_pedido           Int
   tb_pedido_curso        tb_pedido_curso @relation(fields: [fk_id_pedido], references: [id_pedido_curso], onUpdate: Restrict, map: "tb_venta_ibfk_1")
-
   @@index([fk_id_pedido], map: "fk_id_pedido")
 }

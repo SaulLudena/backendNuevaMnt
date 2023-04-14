@@ -5,6 +5,7 @@ const PORT = 3003;
 const userRoute = require("./routes/user");
 const courseRoute = require("./routes/course");
 const loginRoute = require("./routes/login");
+const categoryRoute = require("./routes/category");
 const app = express();
 const horaActual = require("./config/date");
 
@@ -33,3 +34,4 @@ app.get("/", (req, res) => {
 app.use("/user", userRoute);
 app.use("/course", courseRoute);
 app.use("/login", loginRoute);
+app.use("/category", categoryRoute);

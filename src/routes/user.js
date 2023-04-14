@@ -65,6 +65,7 @@ routes.post("/registerUser", async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
     //validamos que exista un error de tipo prisma
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       //validamos que el tipo de error sea un error de datos duplicados "P2002"

@@ -4,17 +4,23 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const horaActual = require("../config/date");
+const crypto = require("crypto");
 /*metodo para agregar un curso por un docente*/
 routes.post("/addNewCourse", async (req, res) => {
   try {
     const { data, nuevamntToken } = req.body;
-    console.log(data);
     let id;
     if (nuevamntToken !== undefined) {
       jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
         err ? res.status(401).json() : (id = decoded.id);
       });
+      const ids = {
+        id_curso: crypto.randomBytes(4).readUInt32BE(),
+        id_modulo: crypto.randomBytes(4).readUInt32BE(),
+        id_leccion: crypto.randomBytes(4).readUInt32BE(),
+      };
       const courseObject = {
+        id_curso: ids.id_curso,
         nombre_curso: data.titulo_curso,
         slug_curso: data.slug_curso,
         descripcion_curso: data.descripcion_curso,
@@ -37,6 +43,7 @@ routes.post("/addNewCourse", async (req, res) => {
 
       const addNewCourse = await prisma.tb_curso.create({
         data: {
+          id_curso: courseObject.id_curso,
           nombre_curso: courseObject.nombre_curso,
           slug_curso: courseObject.slug_curso,
           descripcion_curso: courseObject.descripcion_curso,
@@ -65,14 +72,15 @@ routes.post("/addNewCourse", async (req, res) => {
         },
       });
       const modulesArray = {
+        id_modulo: ids.id_modulo,
         nombre_modulo: data.modulos_curso.moduleName,
         resumen_modulo: data.modulos_curso.moduleDescription,
         fecha_registro_modulo: new Date(horaActual),
-        fk_id_curso: addNewCourse.id_curso,
+        fk_id_curso: courseObject.id_curso,
       };
-
+      console.log(modulesArray);
       await prisma.tb_modulo.createMany({
-        data: modulesArray,
+        data: [modulesArray],
       });
 
       res.json({

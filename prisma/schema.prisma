@@ -50,7 +50,7 @@ model tb_genero {
 }
 
 model tb_leccion {
-  id_leccion               Int       @id @default(autoincrement())
+  id_leccion               Int       @id @default(250)
   nombre_leccion           String    @db.VarChar(200)
   descripcion_leccion      String    @db.VarChar(200)
   imagen_destacada_leccion String    @db.VarChar(300)
@@ -71,7 +71,7 @@ model tb_modalidad_curso {
 }
 
 model tb_modulo {
-  id_modulo             Int          @id @default(autoincrement())
+  id_modulo             Int          @id @default(250)
   nombre_modulo         String       @db.VarChar(200)
   resumen_modulo        String       @db.VarChar(200)
   fecha_registro_modulo DateTime?    @db.DateTime(0)

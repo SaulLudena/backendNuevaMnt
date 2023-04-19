@@ -32,40 +32,38 @@ routes.post("/registerUser", async (req, res) => {
       userData.email_usuario.length <= 0
     ) {
       return res.json({ message: "Ingrese todos los campos" });
-    } else {
-      await prisma.tb_usuario.create({
-        data: {
-          nombre_usuario: userData.nombre_usuario,
-          apellido_usuario: userData.apellido_usuario,
-          nickname_usuario: userData.nickname_usuario,
-          contra_usuario: await bcryptjs.hashSync(userData.contra_usuario, 8),
-          contra_usuario_original: userData.contra_usuario_original,
-          fecha_registro_usuario: new Date(horaActual),
-          fecha_nacimiento_usuario: new Date(userData.fecha_nacimiento_usuario),
-          estado_usuario: userData.estado_usuario,
-          fk_id_rol_usuario: userData.fk_id_rol_usuario,
-          email_usuario: userData.email_usuario,
-
-          telefono_detalle_usuario: "",
-          pais_detalle_usuario: "",
-          provincia_usuario: "",
-          ocupacion_usuario: "",
-          url_foto_perfil_usuario:
-            "https://res.cloudinary.com/dbtzbuew2/image/upload/v1671035838/cld-sample.jpg",
-          url_foto_portada_usuario: "",
-          fk_id_genero: 4,
-          fk_id_tipo_documento: 4,
-          numero_documento_usuario: "",
-        },
-      });
-
-      res.json({
-        status: 200,
-        message: "Usuario agregado correctamente",
-      });
     }
+    await prisma.tb_usuario.create({
+      data: {
+        nombre_usuario: userData.nombre_usuario,
+        apellido_usuario: userData.apellido_usuario,
+        nickname_usuario: userData.nickname_usuario,
+        contra_usuario: await bcryptjs.hashSync(userData.contra_usuario, 8),
+        contra_usuario_original: userData.contra_usuario_original,
+        fecha_registro_usuario: new Date(horaActual),
+        fecha_nacimiento_usuario: new Date(userData.fecha_nacimiento_usuario),
+        estado_usuario: userData.estado_usuario,
+        fk_id_rol_usuario: userData.fk_id_rol_usuario,
+        email_usuario: userData.email_usuario,
+
+        telefono_detalle_usuario: "",
+        pais_detalle_usuario: "",
+        provincia_usuario: "",
+        ocupacion_usuario: "",
+        url_foto_perfil_usuario:
+          "https://res.cloudinary.com/dbtzbuew2/image/upload/v1671035838/cld-sample.jpg",
+        url_foto_portada_usuario: "",
+        fk_id_genero: 4,
+        fk_id_tipo_documento: 4,
+        numero_documento_usuario: "",
+      },
+    });
+
+    res.json({
+      status: 200,
+      message: "Usuario agregado correctamente",
+    });
   } catch (error) {
-    console.log(error);
     //validamos que exista un error de tipo prisma
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       //validamos que el tipo de error sea un error de datos duplicados "P2002"

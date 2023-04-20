@@ -12,14 +12,11 @@ routes.post("/addNewCourse", async (req, res) => {
     const { data, nuevamntToken } = req.body;
     /*variable para almacenar el id del administrador o el docente */
     let id_user;
-    console.log(data);
     /*verificamos que haya un token para agregar un curso */
     if (nuevamntToken !== undefined) {
       jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
         err ? res.status(401).json() : (id_user = decoded.id);
       });
-
-      /*volver las llaves primarias autoincrementales para evitar redundancias y errores de duplicidad de codigo */
 
       const courseRegistered = await prisma.tb_curso.create({
         data: {
@@ -55,7 +52,6 @@ routes.post("/addNewCourse", async (req, res) => {
       if (data.modulos_curso !== undefined) {
         const moduleRegistered = await prisma.tb_modulo.createMany({
           data: data.modulos_curso.map((modulo) => {
-            console.log(modulo);
             return {
               nombre_modulo: modulo.moduleName || "",
               resumen_modulo: modulo.moduleDescription || "",
@@ -63,6 +59,15 @@ routes.post("/addNewCourse", async (req, res) => {
               fecha_registro_modulo: new Date(horaActual) || "",
             };
           }),
+        });
+        /*por lo menos imprimir la leccion con su respectivo modulo */
+        data.modulos_curso.map((modulo, index) => {
+          modulo.lessons.map((lesson) => {
+            console.log({
+              nombre_leccion: lesson.leccion_titulo,
+              modulo,
+            });
+          });
         });
       }
 

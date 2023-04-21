@@ -4,6 +4,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const horaActual = require("../config/date");
+const { generateUniqueId } = require("../config/getRandomId");
+var crypto = require("crypto");
 
 /*metodo para agregar un curso por un docente*/
 routes.post("/addNewCourse", async (req, res) => {
@@ -14,10 +16,11 @@ routes.post("/addNewCourse", async (req, res) => {
     let id_user;
     /*verificamos que haya un token para agregar un curso */
     if (nuevamntToken !== undefined) {
+      /*asignamos el codigo del usuario encontrado a la variable */
       jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
         err ? res.status(401).json() : (id_user = decoded.id);
       });
-
+      /*registramos un curso */
       const courseRegistered = await prisma.tb_curso.create({
         data: {
           nombre_curso: data.titulo_curso || "",
@@ -48,8 +51,9 @@ routes.post("/addNewCourse", async (req, res) => {
           },
         },
       });
-
+      /*validamos que el arreglo esté lleno */
       if (data.modulos_curso !== undefined) {
+        /*registrando los modulos */
         const moduleRegistered = await prisma.tb_modulo.createMany({
           data: data.modulos_curso.map((modulo) => {
             return {
@@ -60,12 +64,20 @@ routes.post("/addNewCourse", async (req, res) => {
             };
           }),
         });
-        /*por lo menos imprimir la leccion con su respectivo modulo */
+        /*encontrando todos los modulos en base a un id */
+        const getModulesById = await prisma.tb_modulo.findMany({
+          where: {
+            fk_id_curso: moduleRegistered.id_curso,
+          },
+        });
+
+        /*imprimir por consola el nombre de la leccion con sus modulos padres */
+
         data.modulos_curso.map((modulo, index) => {
           modulo.lessons.map((lesson) => {
             console.log({
               nombre_leccion: lesson.leccion_titulo,
-              modulo,
+              id_lecciones: getModulesById[index].id_modulo,
             });
           });
         });

@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
   res.send("bienvenido a la api rest de nuevamente");
 });
 
-//ruta para usuarios
+//rutas para las funciones de los usuarios
 app.use("/user", userRoute);
 app.use("/course", courseRoute);
 app.use("/login", loginRoute);

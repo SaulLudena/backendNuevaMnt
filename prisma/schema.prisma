@@ -33,8 +33,8 @@ model tb_curso {
   url_imagen_principal_curso String?            @db.VarChar(500)
   fk_id_categoria_curso      Int
   fk_id_usuario_curso        Int
-  tb_categoria_curso         tb_categoria_curso @relation(fields: [fk_id_categoria_curso], references: [id_categoria_curso], onUpdate: Cascade, map: "tb_curso_ibfk_1")
-  tb_usuario                 tb_usuario         @relation(fields: [fk_id_usuario_curso], references: [id_usuario], onUpdate: Cascade, map: "tb_curso_ibfk_3")
+  tb_categoria_curso         tb_categoria_curso @relation(fields: [fk_id_categoria_curso], references: [id_categoria_curso], map: "tb_curso_ibfk_1")
+  tb_usuario                 tb_usuario         @relation(fields: [fk_id_usuario_curso], references: [id_usuario], map: "tb_curso_ibfk_3")
   tb_modulo                  tb_modulo[]
   tb_pedido_curso            tb_pedido_curso[]
   tb_recursos                tb_recursos[]
@@ -62,7 +62,7 @@ model tb_leccion {
   fecha_registro_leccion   DateTime  @default(now()) @db.DateTime(0)
   progreso_leccion         Int       @default(0)
   fk_id_modulo             Int
-  tb_modulo                tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onUpdate: Cascade, map: "tb_leccion_ibfk_1")
+  tb_modulo                tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], map: "tb_leccion_ibfk_1")
 
   @@index([fk_id_modulo], map: "fk_id_modulo")
 }
@@ -78,7 +78,7 @@ model tb_modulo {
   fecha_registro_modulo DateTime?    @db.DateTime(0)
   fk_id_curso           Int
   tb_leccion            tb_leccion[]
-  tb_curso              tb_curso     @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Cascade, map: "tb_modulo_ibfk_1")
+  tb_curso              tb_curso     @relation(fields: [fk_id_curso], references: [id_curso], onDelete: Cascade, map: "tb_modulo_ibfk_1")
 
   @@index([fk_id_curso], map: "fk_id_curso")
 }
@@ -89,8 +89,8 @@ model tb_pedido_curso {
   monto_total_pedido_curso      Decimal    @db.Decimal(15, 2)
   fk_id_usuario                 Int
   fk_id_curso                   Int
-  tb_curso                      tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Cascade, map: "tb_pedido_curso_ibfk_1")
-  tb_usuario                    tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onUpdate: Cascade, map: "tb_pedido_curso_ibfk_2")
+  tb_curso                      tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], map: "tb_pedido_curso_ibfk_1")
+  tb_usuario                    tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], map: "tb_pedido_curso_ibfk_2")
   tb_venta                      tb_venta[]
 
   @@index([fk_id_curso], map: "fk_id_curso")
@@ -114,8 +114,8 @@ model tb_review {
   texto_review          String     @db.VarChar(2000)
   fk_id_usuario         Int
   fk_id_curso           Int
-  tb_usuario            tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onUpdate: Cascade, map: "tb_review_ibfk_1")
-  tb_curso              tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], onUpdate: Cascade, map: "tb_review_ibfk_2")
+  tb_usuario            tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], map: "tb_review_ibfk_1")
+  tb_curso              tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], map: "tb_review_ibfk_2")
 
   @@index([fk_id_curso], map: "fk_id_curso")
   @@index([fk_id_usuario], map: "fk_id_usuario")
@@ -157,9 +157,9 @@ model tb_usuario {
   tb_curso                 tb_curso[]
   tb_pedido_curso          tb_pedido_curso[]
   tb_review                tb_review[]
-  tb_rol_usuario           tb_rol_usuario     @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], onUpdate: Cascade, map: "tb_usuario_ibfk_1")
-  tb_genero                tb_genero?         @relation(fields: [fk_id_genero], references: [id_genero], onDelete: Cascade, onUpdate: Cascade, map: "tb_usuario_ibfk_2")
-  tb_tipo_documento        tb_tipo_documento? @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onDelete: Cascade, onUpdate: Cascade, map: "tb_usuario_ibfk_3")
+  tb_rol_usuario           tb_rol_usuario     @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], map: "tb_usuario_ibfk_1")
+  tb_genero                tb_genero?         @relation(fields: [fk_id_genero], references: [id_genero], onDelete: Cascade, map: "tb_usuario_ibfk_2")
+  tb_tipo_documento        tb_tipo_documento? @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onDelete: Cascade, map: "tb_usuario_ibfk_3")
 
   @@index([fk_id_genero], map: "fk_id_genero")
   @@index([fk_id_rol_usuario], map: "fk_id_rol_usuario")
@@ -170,7 +170,7 @@ model tb_venta {
   id_venta               Int             @id @default(autoincrement())
   fecha_generacion_venta DateTime        @default(now()) @db.DateTime(0)
   fk_id_pedido           Int
-  tb_pedido_curso        tb_pedido_curso @relation(fields: [fk_id_pedido], references: [id_pedido_curso], onUpdate: Cascade, map: "tb_venta_ibfk_1")
+  tb_pedido_curso        tb_pedido_curso @relation(fields: [fk_id_pedido], references: [id_pedido_curso], map: "tb_venta_ibfk_1")
 
   @@index([fk_id_pedido], map: "fk_id_pedido")
 }

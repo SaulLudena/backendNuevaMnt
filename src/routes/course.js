@@ -13,7 +13,8 @@ routes.post("/addNewCourse", async (req, res) => {
     /*recuperamos el curso y el token del administrador o docente */
     const { data, nuevamntToken } = req.body;
     /*variable para almacenar el id del administrador o el docente */
-    let id_user;
+    let id_user,
+      lessonsArray = [];
     /*verificamos que haya un token para agregar un curso */
     if (nuevamntToken !== undefined) {
       /*asignamos el codigo del usuario encontrado a la variable */
@@ -73,12 +74,32 @@ routes.post("/addNewCourse", async (req, res) => {
 
         /*imprimir por consola el nombre de la leccion con sus modulos padres */
 
-        data.modulos_curso.map((modulo, index) => {
-          modulo.lessons.map((lesson) => {
-            console.log({
-              nombre_leccion: lesson.leccion_titulo,
-              id_lecciones: getModulesById[index].id_modulo,
+        data.modulos_curso.map(async (modulo, index) => {
+          modulo.lessons.map(async (lesson) => {
+            /*en lugar de imprimir por consola debo insertarlos */
+            lessonsArray.push(lesson);
+            /* insertar varias lecciones*/
+            const lessonRegistered = await prisma.tb_leccion.createMany({
+              data: lessonsArray.map((lesson) => {
+                return {
+                  nombre_leccion: lesson.leccion_titulo || "",
+                  descripcion_leccion: lesson.leccion_descripcion || "",
+                  imagen_destacada_leccion: lesson.leccion_imagen || "",
+                  url_video_leccion: lesson.leccion_enlace || "",
+                  duracion_hora_leccion:
+                    parseInt(lesson.leccion_duracion_horas) || 0,
+                  duracion_minuto_leccion:
+                    parseInt(lesson.leccion_duracion_minutos) || 0,
+                  duracion_segundo_leccion:
+                    parseInt(lesson.leccion_duracion_segundos) || 0,
+                  fecha_registro_leccion: new Date(horaActual) || "",
+                  progreso_leccion: false,
+                  fk_id_modulo: getModulesById[index].id_modulo || null,
+                };
+              }),
             });
+            /*imprimir por consola las lecciones registradas */
+            console.log(lessonRegistered);
           });
         });
       }

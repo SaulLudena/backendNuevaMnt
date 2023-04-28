@@ -137,31 +137,27 @@ routes.post("/validateUserType", async (req, res) => {
       async (err, decoded) => {
         if (err) {
           res.status(401).json();
-        } else {
-          const { id } = decoded;
-          const user = await prisma.tb_usuario.findUnique({
-            where: { id_usuario: id },
-            include: {
-              tb_rol_usuario: true,
-            },
-          });
-
-          const userInfo = {
-            id_tipo_usuario: user.fk_id_rol_usuario,
-            rol_usuario: user.tb_rol_usuario.nombre_tipo_usuario,
-          };
-
-          res.json({ userInfo });
         }
+        const { id } = decoded;
+        const user = await prisma.tb_usuario.findUnique({
+          where: { id_usuario: id },
+          include: {
+            tb_rol_usuario: true,
+          },
+        });
+
+        const userInfoDashboard = {
+          id_tipo_usuario: user.fk_id_rol_usuario,
+          rol_usuario: user.tb_rol_usuario.nombre_tipo_usuario,
+        };
+
+        res.json({ userInfoDashboard });
       }
     );
   } catch (error) {
     res.json({ error });
   }
 });
-
-//este metodo sirve para llamar la meta informacion de un usuario
-routes.get("/userMetaInfo");
 
 //este metodo sirve para recuperar la contrasenia deun usuario
 routes.post("/recoverPassword", async (req, res) => {

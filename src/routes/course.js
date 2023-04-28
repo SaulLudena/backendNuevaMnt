@@ -4,8 +4,6 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const horaActual = require("../config/date");
-const { generateUniqueId } = require("../config/getRandomId");
-var crypto = require("crypto");
 
 /*metodo para agregar un curso por un docente*/
 routes.post("/addNewCourse", async (req, res) => {
@@ -113,7 +111,56 @@ routes.post("/addNewCourse", async (req, res) => {
     console.log(error);
   }
 });
-/*metodo para listar todos los cursos*/
+
+/*metodo para mostrar un curso en base al id del curso y en base al id del usuario del token */
+routes.post("/getCourseById", async (req, res) => {
+  try {
+    /*recuperamos el id del curso y el token del administrador o docente */
+    const { id_curso, nuevamntToken } = req.body;
+    console.log(req.body);
+    /*variable para almacenar el id del administrador o el docente */
+    let id_user;
+    /*verificamos que haya un token para agregar un curso */
+    if (nuevamntToken !== undefined) {
+      /*asignamos el codigo del usuario encontrado a la variable */
+      jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
+        err ? res.status(401).json() : (id_user = decoded.id);
+      });
+      /*buscamos el curso en base al id del curso y al id del usuario */
+      const getCourseById = await prisma.tb_curso.findMany({
+        where: {
+          id_curso: parseInt(id_curso),
+          fk_id_usuario_curso: id_user,
+        },
+        include: {
+          tb_modulo: {
+            include: {
+              tb_leccion: true,
+            },
+          },
+        },
+      });
+      /*validamos que el curso exista */
+      if (getCourseById.length > 0) {
+        res.json({
+          status: 200,
+          message: "Curso encontrado",
+          getCourseById: getCourseById,
+        });
+      } else {
+        res.json({
+          status: 404,
+          message: "Curso no encontrado",
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/*Delete below method */
+/*metodo para listar todos los cursos en la tienda*/
 routes.get("/getAllCoursesToBuy", async (req, res) => {
   try {
     const getAllCoursesToBuy = await prisma.tb_curso.findMany({

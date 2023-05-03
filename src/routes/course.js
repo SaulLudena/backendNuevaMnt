@@ -72,34 +72,36 @@ routes.post("/addNewCourse", async (req, res) => {
 
         /*imprimir por consola el nombre de la leccion con sus modulos padres */
 
-        data.modulos_curso.map(async (modulo, index) => {
-          modulo.lessons.map(async (lesson) => {
-            /*en lugar de imprimir por consola debo insertarlos */
-            lessonsArray.push(lesson);
-            /* insertar varias lecciones*/
-            const lessonRegistered = await prisma.tb_leccion.createMany({
-              data: lessonsArray.map((lesson) => {
-                return {
-                  nombre_leccion: lesson.leccion_titulo || "",
-                  descripcion_leccion: lesson.leccion_descripcion || "",
-                  imagen_destacada_leccion: lesson.leccion_imagen || "",
-                  url_video_leccion: lesson.leccion_enlace || "",
-                  duracion_hora_leccion:
-                    parseInt(lesson.leccion_duracion_horas) || 0,
-                  duracion_minuto_leccion:
-                    parseInt(lesson.leccion_duracion_minutos) || 0,
-                  duracion_segundo_leccion:
-                    parseInt(lesson.leccion_duracion_segundos) || 0,
-                  fecha_registro_leccion: new Date(horaActual) || "",
-                  progreso_leccion: false,
-                  fk_id_modulo: getModulesById[index].id_modulo || null,
-                };
-              }),
-            });
-            /*imprimir por consola las lecciones registradas */
-            console.log(lessonRegistered);
+        /* recorremos los modulos del curso */
+        for (let i = 0; i < data.modulos_curso.length; i++) {
+          /* creamos un array para almacenar las lecciones de este modulo */
+          const lessonsArray = data.modulos_curso[i].lessons.map((lesson) => {
+            return {
+              nombre_leccion: lesson.leccion_titulo || "",
+              descripcion_leccion: lesson.leccion_descripcion || "",
+              imagen_destacada_leccion: lesson.leccion_imagen || "",
+              url_video_leccion: lesson.leccion_enlace || "",
+              duracion_hora_leccion:
+                parseInt(lesson.leccion_duracion_horas) || 0,
+              duracion_minuto_leccion:
+                parseInt(lesson.leccion_duracion_minutos) || 0,
+              duracion_segundo_leccion:
+                parseInt(lesson.leccion_duracion_segundos) || 0,
+              fecha_registro_leccion: new Date(horaActual) || "",
+              progreso_leccion: false,
+              tb_modulo: {
+                connect: {
+                  id_modulo: getModulesById[i].id_modulo || null,
+                },
+              },
+            };
           });
-        });
+          /* insertamos todas las lecciones de este modulo */
+          const lessonRegistered = await prisma.tb_leccion.createMany({
+            data: lessonsArray,
+          });
+          console.log(lessonRegistered);
+        }
       }
 
       res.json({
@@ -117,7 +119,6 @@ routes.post("/getCourseById", async (req, res) => {
   try {
     /*recuperamos el id del curso y el token del administrador o docente */
     const { id_curso, nuevamntToken } = req.body;
-    console.log(req.body);
     /*variable para almacenar el id del administrador o el docente */
     let id_user;
     /*verificamos que haya un token para agregar un curso */
@@ -126,20 +127,23 @@ routes.post("/getCourseById", async (req, res) => {
       jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
         err ? res.status(401).json() : (id_user = decoded.id);
       });
-      /*buscamos el curso en base al id del curso y al id del usuario */
+      /*buscamos el curso en base al id del curso y al id del usuario, retornar todos los modulos y lecciones en base al id del modulo */
       const getCourseById = await prisma.tb_curso.findMany({
         where: {
           id_curso: parseInt(id_curso),
           fk_id_usuario_curso: id_user,
         },
         include: {
+          /*llamar a todos los modulos y tambien llamar a las lecciones en base al id del modulo*/
           tb_modulo: {
             include: {
               tb_leccion: true,
             },
           },
+          tb_categoria_curso: true,
         },
       });
+      console.log(getCourseById);
       /*validamos que el curso exista */
       if (getCourseById.length > 0) {
         res.json({

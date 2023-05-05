@@ -62,7 +62,7 @@ model tb_leccion {
   fecha_registro_leccion   DateTime  @default(now()) @db.DateTime(0)
   progreso_leccion         Boolean   @default(false)
   fk_id_modulo             Int
-  tb_modulo                tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onDelete: Cascade , map: "tb_leccion_ibfk_1")
+  tb_modulo                tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onDelete: Cascade, map: "tb_leccion_ibfk_1")
 
   @@index([fk_id_modulo], map: "fk_id_modulo")
 }
@@ -89,8 +89,8 @@ model tb_pedido_curso {
   monto_total_pedido_curso      Decimal    @db.Decimal(15, 2)
   fk_id_usuario                 Int
   fk_id_curso                   Int
-  tb_curso                      tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], map: "tb_pedido_curso_ibfk_1")
-  tb_usuario                    tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], map: "tb_pedido_curso_ibfk_2")
+  tb_curso                      tb_curso   @relation(fields: [fk_id_curso], references: [id_curso], onDelete: Cascade, map: "tb_pedido_curso_ibfk_1")
+  tb_usuario                    tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onDelete: Cascade, map: "tb_pedido_curso_ibfk_2")
   tb_venta                      tb_venta[]
 
   @@index([fk_id_curso], map: "fk_id_curso")
@@ -170,7 +170,7 @@ model tb_venta {
   id_venta               Int             @id @default(autoincrement())
   fecha_generacion_venta DateTime        @default(now()) @db.DateTime(0)
   fk_id_pedido           Int
-  tb_pedido_curso        tb_pedido_curso @relation(fields: [fk_id_pedido], references: [id_pedido_curso], map: "tb_venta_ibfk_1")
+  tb_pedido_curso        tb_pedido_curso @relation(fields: [fk_id_pedido], references: [id_pedido_curso], onDelete: Cascade, map: "tb_venta_ibfk_1")
 
   @@index([fk_id_pedido], map: "fk_id_pedido")
 }

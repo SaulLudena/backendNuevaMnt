@@ -66,16 +66,13 @@ routes.post("/addNewCourse", async (req, res) => {
         /*encontrando todos los modulos en base a un id */
         const getModulesById = await prisma.tb_modulo.findMany({
           where: {
-            fk_id_curso: moduleRegistered.id_curso,
+            fk_id_curso: courseRegistered.id_curso,
           },
         });
 
         /*imprimir por consola el nombre de la leccion con sus modulos padres */
-
-        /* recorremos los modulos del curso */
-        for (let i = 0; i < data.modulos_curso.length; i++) {
-          /* creamos un array para almacenar las lecciones de este modulo */
-          const lessonsArray = data.modulos_curso[i].lessons.map((lesson) => {
+        data.modulos_curso.map(async (modulo, index) => {
+          const lessonsArray = modulo.lessons.map((lesson) => {
             return {
               nombre_leccion: lesson.leccion_titulo || "",
               descripcion_leccion: lesson.leccion_descripcion || "",
@@ -89,19 +86,15 @@ routes.post("/addNewCourse", async (req, res) => {
                 parseInt(lesson.leccion_duracion_segundos) || 0,
               fecha_registro_leccion: new Date(horaActual) || "",
               progreso_leccion: false,
-              tb_modulo: {
-                connect: {
-                  id_modulo: getModulesById[i].id_modulo || null,
-                },
-              },
+              fk_id_modulo: getModulesById[index].id_modulo || null,
             };
           });
-          /* insertamos todas las lecciones de este modulo */
           const lessonRegistered = await prisma.tb_leccion.createMany({
             data: lessonsArray,
           });
+          /*imprimir por consola las lecciones registradas */
           console.log(lessonRegistered);
-        }
+        });
       }
 
       res.json({

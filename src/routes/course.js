@@ -93,7 +93,7 @@ routes.post("/addNewCourse", async (req, res) => {
             data: lessonsArray,
           });
           /*imprimir por consola las lecciones registradas */
-          console.log(lessonRegistered);
+          //console.log(lessonRegistered);
         });
       }
 

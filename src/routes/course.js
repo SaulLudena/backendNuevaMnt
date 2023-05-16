@@ -40,7 +40,7 @@ routes.post("/addNewCourse", async (req, res) => {
           url_imagen_principal_curso: "",
           tb_categoria_curso: {
             connect: {
-              id_categoria_curso: parseInt(data.categoria_curso),
+              id_categoria_curso: parseInt(data.categoria_curso) || 1,
             },
           },
           tb_usuario: {

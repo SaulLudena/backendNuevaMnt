@@ -11,8 +11,7 @@ routes.post("/addNewCourse", async (req, res) => {
     /*recuperamos el curso y el token del administrador o docente */
     const { data, nuevamntToken } = req.body;
     /*variable para almacenar el id del administrador o el docente */
-    let id_user,
-      lessonsArray = [];
+    let id_user;
     /*verificamos que haya un token para agregar un curso */
     if (nuevamntToken !== undefined) {
       /*asignamos el codigo del usuario encontrado a la variable */

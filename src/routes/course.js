@@ -20,6 +20,8 @@ const storage_course_images = multer.diskStorage({
   },
 });
 
+const upload = multer({ storage: storage });
+
 /*metodo para agregar un curso por un docente*/
 routes.post(
   "/addNewCourse",

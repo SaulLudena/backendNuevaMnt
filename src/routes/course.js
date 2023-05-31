@@ -1,24 +1,43 @@
-const express = require("express");
-const routes = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const express = require("express");
+const routes = express.Router();
 const jwt = require("jsonwebtoken");
 const horaActual = require("../config/date");
+const multer = require("multer");
+
+// Configuración de Multer para las imagenes del curso
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "assets/images/course_images/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname); // Nombre de archivo único
+  },
+});
+
+const upload = multer({ storage: storage });
 
 /*metodo para agregar un curso por un docente*/
-routes.post("/addNewCourse", async (req, res) => {
-  try {
-    /*recuperamos el curso y el token del administrador o docente */
-    const { data, nuevamntToken } = req.body;
-    /*variable para almacenar el id del administrador o el docente */
+routes.post(
+  "/addNewCourse",
+  upload.single("thumbnail_curso"),
+  async (req, res) => {
+    try {
+      //recuperamos el curso y el token del administrador o docente
+      const { data, nuevamntToken } = req.body;
+      console.log(data);
+      res.json({ message: "ok" });
+      /*
+    //variable para almacenar el id del administrador o el docente
     let id_user;
-    /*verificamos que haya un token para agregar un curso */
+    //verificamos que haya un token para agregar un curso
     if (nuevamntToken !== undefined) {
-      /*asignamos el codigo del usuario encontrado a la variable */
+      //asignamos el codigo del usuario encontrado a la variable
       jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
         err ? res.status(401).json() : (id_user = decoded.id);
       });
-      /*registramos un curso */
+      //registramos un curso
       const courseRegistered = await prisma.tb_curso.create({
         data: {
           nombre_curso: data.titulo_curso || "",
@@ -49,9 +68,9 @@ routes.post("/addNewCourse", async (req, res) => {
           },
         },
       });
-      /*validamos que el arreglo esté lleno */
+      //validamos que el arreglo esté lleno
       if (data.modulos_curso !== undefined) {
-        /*registrando los modulos */
+        //registrando los modulos
         const moduleRegistered = await prisma.tb_modulo.createMany({
           data: data.modulos_curso.map((modulo) => {
             return {
@@ -62,14 +81,14 @@ routes.post("/addNewCourse", async (req, res) => {
             };
           }),
         });
-        /*encontrando todos los modulos en base a un id */
+        //encontrando todos los modulos en base a un id
         const getModulesById = await prisma.tb_modulo.findMany({
           where: {
             fk_id_curso: courseRegistered.id_curso,
           },
         });
 
-        /*imprimir por consola el nombre de la leccion con sus modulos padres */
+        //imprimir por consola el nombre de la leccion con sus modulos padres
         data.modulos_curso.map(async (modulo, index) => {
           const lessonsArray = modulo.lessons.map((lesson) => {
             return {
@@ -91,7 +110,7 @@ routes.post("/addNewCourse", async (req, res) => {
           const lessonRegistered = await prisma.tb_leccion.createMany({
             data: lessonsArray,
           });
-          /*imprimir por consola las lecciones registradas */
+          //imprimir por consola las lecciones registradas
           //console.log(lessonRegistered);
         });
       }
@@ -101,10 +120,12 @@ routes.post("/addNewCourse", async (req, res) => {
         message: "Curso agregado correctamente",
       });
     }
-  } catch (error) {
-    console.log(error);
+*/
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 
 /*metodo para mostrar un curso en base al id del curso y en base al id del usuario del token */
 routes.post("/getCourseById", async (req, res) => {
@@ -155,7 +176,44 @@ routes.post("/getCourseById", async (req, res) => {
   }
 });
 
-/*Delete below method */
+/*metodo para eliminar un curso de la base de datos */
+routes.delete("/deleteCourseById", async (req, res) => {
+  try {
+    /*recuperamos el id del curso y el token del administrador o docente */
+    const { id_curso, nuevamntToken } = req.body;
+    /*variable para almacenar el id del administrador o el docente */
+    let id_user;
+    /*verificamos que haya un token para agregar un curso */
+    if (nuevamntToken !== undefined) {
+      /*asignamos el codigo del usuario encontrado a la variable */
+      jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
+        err ? res.status(401).json() : (id_user = decoded.id);
+      });
+      /*buscamos el curso en base al id del curso y al id del usuario, retornar todos los modulos y lecciones en base al id del modulo */
+      const deleteCourseById = await prisma.tb_curso.deleteMany({
+        where: {
+          id_curso: parseInt(id_curso),
+          fk_id_usuario_curso: id_user,
+        },
+      });
+      /*validamos que el curso exista */
+      if (deleteCourseById.count > 0) {
+        res.json({
+          status: 200,
+          message: "Curso eliminado correctamente",
+        });
+      } else {
+        res.json({
+          status: 404,
+          message: "Curso no encontrado",
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 /*metodo para listar todos los cursos en la tienda*/
 routes.get("/getAllCoursesToBuy", async (req, res) => {
   try {

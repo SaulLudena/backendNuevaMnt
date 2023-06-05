@@ -9,7 +9,21 @@ const multer = require("multer");
 // Configuración de Multer para las imagenes del curso
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "assets/images/course_images/");
+    const fieldName = file.fieldname;
+    //destino de imagenes para thumbnail_curso
+    if (fieldName === "thumbnail_curso") {
+      destination = "assets/images/course_images";
+      cb(null, destination);
+    } //destino de imagenes para imagen de cada leccion
+    else if (fieldName === "leccion_imagen") {
+      destination = "assets/images/lessons_images";
+      cb(null, destination);
+    }
+    //destino de imagenes para recursos del curso
+    else if (fieldName === "recursos_curso") {
+      destination = "assets/course_resources";
+      cb(null, destination);
+    }
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname); // Nombre de archivo único
@@ -21,13 +35,19 @@ const upload = multer({ storage: storage });
 /*metodo para agregar un curso por un docente*/
 routes.post(
   "/addNewCourse",
-  upload.single("thumbnail_curso"),
+  upload.fields([
+    { name: "thumbnail_curso", maxCount: 1 },
+    { name: "leccion_imagen", maxCount: 1000 },
+    { name: "recursos_curso", maxCount: 1000 },
+  ]),
   async (req, res) => {
     try {
       //recuperamos el curso y el token del administrador o docente
-      const { data, nuevamntToken } = req.body;
-      console.log(data);
-      res.json({ message: "ok" });
+      const curso = req.body;
+      console.log(curso);
+      /*subir una imagen por un formulario con react hook form*/
+      console.log(req.files);
+
       /*
     //variable para almacenar el id del administrador o el docente
     let id_user;

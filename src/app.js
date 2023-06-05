@@ -12,7 +12,7 @@ const horaActual = require("./config/date");
 app.set("port", PORT || 9000);
 app.listen(PORT, () =>
   console.log(
-    `Servidor iniciado en puerto${app.get("port")}  ` +
+    `Server running on port ${app.get("port")}  ` +
       horaActual +
       "----------------------"
   )
@@ -21,8 +21,15 @@ app.listen(PORT, () =>
 //middlewares---------------------------------------------------------
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
+
+//test api
+app.get("/", (req, res) => {
+  res.send("bienvenido a la api rest de nuevamente");
+});
 
 //rutas para las funciones de los usuarios
 app.use("/user", userRoute);

@@ -161,6 +161,35 @@ routes.post("/validateUserType", async (req, res) => {
 
 //este metodo sirve para recuperar la contrasenia deun usuario
 routes.post("/recoverPassword", async (req, res) => {
+  const { email_usuario } = req.body;
+  const user = await prisma.tb_usuario.findUnique({
+    where: { email_usuario: email_usuario },
+  });
+  if (user) {
+    const newPassword = randomKeyGenerator(8);
+    const newPasswordHashed = await bcryptjs.hashSync(newPassword, 8);
+    await prisma.tb_usuario.update({
+      where: { email_usuario: email_usuario },
+      data: {
+        contra_usuario: newPasswordHashed,
+      },
+    });
+    await emailer(
+      email_usuario,
+      "Recuperación de contraseña",
+      `Hola ${user.nombre_usuario} ${user.apellido_usuario}, tu nueva contraseña es: ${newPassword}`
+    );
+    res.json({
+      status: 200,
+      message: "Se ha enviado un correo con tu nueva contraseña",
+    });
+  } else {
+    res.json({
+      status: 400,
+      message: "El correo ingresado no existe",
+    });
+  }
+
   /*
   1-Recuperar email
   2-verificar si existe en la base de datos

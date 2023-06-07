@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const horaActual = require("../config/date");
 const multer = require("multer");
 
-// Configuración de Multer para las imagenes del curso
+// Configuración de Multer para almacenar las imagenes del curso
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const fieldName = file.fieldname;
@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
     }
     //destino de imagenes para recursos del curso
     else if (fieldName === "recursos_curso") {
-      destination = "assets/course_resources";
+      destination = "assets/files/course_resources";
       cb(null, destination);
     }
   },
@@ -35,6 +35,7 @@ const upload = multer({ storage: storage });
 /*metodo para agregar un curso por un docente*/
 routes.post(
   "/addNewCourse",
+  //recuperamos los archivos enviados desde el formulario para un curso
   upload.fields([
     { name: "thumbnail_curso", maxCount: 1 },
     { name: "leccion_imagen", maxCount: 1000 },
@@ -44,104 +45,132 @@ routes.post(
     try {
       //recuperamos el curso y el token del administrador o docente
       const curso = req.body;
-      console.log(curso);
-      /*subir una imagen por un formulario con react hook form*/
-      console.log(req.files);
-
-      /*
-    //variable para almacenar el id del administrador o el docente
-    let id_user;
-    //verificamos que haya un token para agregar un curso
-    if (nuevamntToken !== undefined) {
-      //asignamos el codigo del usuario encontrado a la variable
-      jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
-        err ? res.status(401).json() : (id_user = decoded.id);
-      });
-      //registramos un curso
-      const courseRegistered = await prisma.tb_curso.create({
-        data: {
-          nombre_curso: data.titulo_curso || "",
-          slug_curso: data.slug_curso || "",
-          descripcion_curso: data.descripcion_curso || "",
-          tipo_precio_curso: data.tipo_precio_curso || "",
-          precio_regular_curso: parseInt(data.precio_regular_curso) || 0,
-          precio_descuento_curso: parseInt(data.precio_descuento_curso) || 0,
-          que_aprendere_curso: data.que_aprendere_curso || "",
-          video_introductorio_curso: data.video_introductorio_curso || "",
-          publico_objetivo_curso: data.publico_objetivo_curso || "",
-          duracion_horas_curso: parseInt(data.duracion_horas_curso) || 0,
-          duracion_minutos_curso: parseInt(data.duracion_minutos_curso) || 0,
-          materiales_incluidos_curso: data.materiales_incluidos_curso || "",
-          etiquetas_curso: data.etiquetas_curso || "",
-          fecha_registro_curso: new Date(horaActual) || "",
-          calificacion_curso: 0 || 0,
-          url_imagen_principal_curso: "",
-          tb_categoria_curso: {
-            connect: {
-              id_categoria_curso: parseInt(data.categoria_curso) || 1,
-            },
-          },
-          tb_usuario: {
-            connect: {
-              id_usuario: id_user,
-            },
-          },
-        },
-      });
-      //validamos que el arreglo esté lleno
-      if (data.modulos_curso !== undefined) {
-        //registrando los modulos
-        const moduleRegistered = await prisma.tb_modulo.createMany({
-          data: data.modulos_curso.map((modulo) => {
-            return {
-              nombre_modulo: modulo.moduleName || "",
-              resumen_modulo: modulo.moduleDescription || "",
-              fk_id_curso: courseRegistered.id_curso || null,
-              fecha_registro_modulo: new Date(horaActual) || "",
-            };
-          }),
+      const nuevamntToken = curso.nuevamenteToken;
+      const data = curso;
+      //variable para almacenar el id del administrador o el docente
+      let id_user;
+      console.log(data.thumbnail_curso);
+      console.log(req.files.thumbnail_curso.path);
+      //verificamos que haya un token para agregar un curso
+      if (nuevamntToken !== undefined) {
+        //asignamos el codigo del usuario encontrado a la variable
+        jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
+          err ? res.status(401).json() : (id_user = decoded.id);
         });
-        //encontrando todos los modulos en base a un id
-        const getModulesById = await prisma.tb_modulo.findMany({
-          where: {
-            fk_id_curso: courseRegistered.id_curso,
+
+        //registramos un curso
+        const courseRegistered = await prisma.tb_curso.create({
+          data: {
+            nombre_curso: data.titulo_curso || "",
+            slug_curso: data.slug_curso || "",
+            descripcion_curso: data.descripcion_curso || "",
+            tipo_precio_curso: data.tipo_precio_curso || "",
+            precio_regular_curso: parseInt(data.precio_regular_curso) || 0,
+            precio_descuento_curso: parseInt(data.precio_descuento_curso) || 0,
+            que_aprendere_curso: data.que_aprendere_curso || "",
+            video_introductorio_curso: data.video_introductorio_curso || "",
+            publico_objetivo_curso: data.publico_objetivo_curso || "",
+            duracion_horas_curso: parseInt(data.duracion_horas_curso) || 0,
+            duracion_minutos_curso: parseInt(data.duracion_minutos_curso) || 0,
+            materiales_incluidos_curso: data.materiales_incluidos_curso || "",
+            etiquetas_curso: data.etiquetas_curso || "",
+            fecha_registro_curso: new Date(horaActual) || "",
+            calificacion_curso: 0 || 0,
+            url_imagen_principal_curso:
+              process.env.DOMAIN + "/" + req.files.thumbnail_curso[0].path ||
+              "",
+
+            tb_categoria_curso: {
+              connect: {
+                id_categoria_curso: parseInt(data.categoria_curso) || 1,
+              },
+            },
+            tb_usuario: {
+              connect: {
+                id_usuario: id_user,
+              },
+            },
           },
         });
 
-        //imprimir por consola el nombre de la leccion con sus modulos padres
-        data.modulos_curso.map(async (modulo, index) => {
-          const lessonsArray = modulo.lessons.map((lesson) => {
-            return {
-              nombre_leccion: lesson.leccion_titulo || "",
-              descripcion_leccion: lesson.leccion_descripcion || "",
-              imagen_destacada_leccion: lesson.leccion_imagen || "",
-              url_video_leccion: lesson.leccion_enlace || "",
-              duracion_hora_leccion:
-                parseInt(lesson.leccion_duracion_horas) || 0,
-              duracion_minuto_leccion:
-                parseInt(lesson.leccion_duracion_minutos) || 0,
-              duracion_segundo_leccion:
-                parseInt(lesson.leccion_duracion_segundos) || 0,
-              fecha_registro_leccion: new Date(horaActual) || "",
-              progreso_leccion: false,
-              fk_id_modulo: getModulesById[index].id_modulo || null,
-            };
+        //validamos que el arreglo esté lleno
+        if (data.modulos_curso !== undefined) {
+          //registrando los modulos
+          const modulos_curso_array = JSON.parse(data.modulos_curso);
+          await prisma.tb_modulo.createMany({
+            data: modulos_curso_array.map((modulo) => {
+              return {
+                nombre_modulo: modulo.moduleName || "",
+                resumen_modulo: modulo.moduleDescription || "",
+                fk_id_curso: courseRegistered.id_curso || null,
+                fecha_registro_modulo: new Date(horaActual) || "",
+              };
+            }),
           });
-          const lessonRegistered = await prisma.tb_leccion.createMany({
-            data: lessonsArray,
+          //encontrando todos los modulos en base a un id
+          const getModulesById = await prisma.tb_modulo.findMany({
+            where: {
+              fk_id_curso: courseRegistered.id_curso,
+            },
           });
-          //imprimir por consola las lecciones registradas
-          //console.log(lessonRegistered);
+
+          //registrando las lecciones
+          modulos_curso_array.map(async (modulo, index) => {
+            const lessonsArray = modulo.lessons.map((lesson, index) => {
+              return {
+                nombre_leccion: lesson.leccion_titulo || "",
+                descripcion_leccion: lesson.leccion_descripcion || "",
+                imagen_destacada_leccion:
+                  process.env.DOMAIN +
+                    "/" +
+                    req.files.leccion_imagen[index].path || "",
+                url_video_leccion: lesson.leccion_enlace || "",
+                duracion_hora_leccion:
+                  parseInt(lesson.leccion_duracion_horas) || 0,
+                duracion_minuto_leccion:
+                  parseInt(lesson.leccion_duracion_minutos) || 0,
+                duracion_segundo_leccion:
+                  parseInt(lesson.leccion_duracion_segundos) || 0,
+                fecha_registro_leccion: new Date(horaActual) || "",
+                progreso_leccion: false,
+                fk_id_modulo: getModulesById[index].id_modulo || null,
+              };
+            });
+            await prisma.tb_leccion.createMany({
+              data: lessonsArray,
+            });
+          });
+
+          //validamos que el arreglo de recursos esté lleno
+          if (
+            req.files.recursos_curso !== undefined &&
+            req.files.recursos_curso.length > 0
+          ) {
+            // Registrando los recursos
+            const recursos_curso_array = req.files.recursos_curso;
+
+            await prisma.tb_recursos.createMany({
+              // Creamos los recursos
+              data: recursos_curso_array.map((recurso, index) => {
+                return {
+                  nombre_recurso: recursos_curso_array[index].originalname,
+                  url_recurso:
+                    process.env.DOMAIN + recursos_curso_array[index].path || "",
+                  fecha_registro_recurso: new Date(horaActual) || "",
+                  fk_id_curso: courseRegistered.id_curso || null,
+                };
+              }),
+            });
+          }
+        }
+
+        res.json({
+          status: 200,
+          message: "Curso agregado correctamente",
         });
       }
-
-      res.json({
-        status: 200,
-        message: "Curso agregado correctamente",
-      });
-    }
-*/
     } catch (error) {
+      33;
       console.log(error);
     }
   }
@@ -176,7 +205,6 @@ routes.post("/getCourseById", async (req, res) => {
           tb_categoria_curso: true,
         },
       });
-      console.log(getCourseById);
       /*validamos que el curso exista */
       if (getCourseById.length > 0) {
         res.json({
@@ -200,7 +228,8 @@ routes.post("/getCourseById", async (req, res) => {
 routes.delete("/deleteCourseById", async (req, res) => {
   try {
     /*recuperamos el id del curso y el token del administrador o docente */
-    const { id_curso, nuevamntToken } = req.body;
+    const { id_curso, nuevamntToken } = req.query;
+
     /*variable para almacenar el id del administrador o el docente */
     let id_user;
     /*verificamos que haya un token para agregar un curso */
@@ -267,7 +296,9 @@ routes.post("/getRegisteredCousesByAdminOrInstructor", async (req, res) => {
           include: {
             tb_categoria_curso: true,
             tb_modulo: true,
-            tb_modulo: true,
+            tb_usuario: {
+              select: { email_usuario: true },
+            },
           },
         });
       res.json({

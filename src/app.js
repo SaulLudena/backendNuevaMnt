@@ -8,6 +8,7 @@ const loginRoute = require("./routes/login");
 const categoryRoute = require("./routes/category");
 const app = express();
 const horaActual = require("./config/date");
+const path = require("path");
 
 app.set("port", PORT || 9000);
 app.listen(PORT, () =>
@@ -19,6 +20,8 @@ app.listen(PORT, () =>
 );
 
 //middlewares---------------------------------------------------------
+//permitir ver todos los archivos de la carpeta assets
+app.use(express.static(path.join(__dirname, "assets")));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

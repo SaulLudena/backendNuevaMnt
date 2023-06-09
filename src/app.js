@@ -21,7 +21,7 @@ app.listen(PORT, () =>
 
 //middlewares---------------------------------------------------------
 //permitir ver todos los archivos de la carpeta assets
-app.use(express.static(path.join(__dirname, "assets")));
+app.use(express.static("./assets"));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

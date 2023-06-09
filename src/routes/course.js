@@ -49,8 +49,7 @@ routes.post(
       const data = curso;
       //variable para almacenar el id del administrador o el docente
       let id_user;
-      console.log(data.thumbnail_curso);
-      console.log(req.files.thumbnail_curso.path);
+      console.log(req.files);
       //verificamos que haya un token para agregar un curso
       if (nuevamntToken !== undefined) {
         //asignamos el codigo del usuario encontrado a la variable
@@ -77,8 +76,16 @@ routes.post(
             fecha_registro_curso: new Date(horaActual) || "",
             calificacion_curso: 0 || 0,
             url_imagen_principal_curso:
-              process.env.DOMAIN + "/" + req.files.thumbnail_curso[0].path ||
-              "",
+              req.files.thumbnail_curso && req.files.thumbnail_curso[0]
+                ? process.env.DOMAIN +
+                  "/" +
+                  req.files.thumbnail_curso[0].destination.replace(
+                    "assets/",
+                    ""
+                  ) +
+                  "/" +
+                  req.files.thumbnail_curso[0].filename
+                : "",
 
             tb_categoria_curso: {
               connect: {
@@ -202,6 +209,7 @@ routes.post("/getCourseById", async (req, res) => {
               tb_leccion: true,
             },
           },
+          tb_recursos: true,
           tb_categoria_curso: true,
         },
       });

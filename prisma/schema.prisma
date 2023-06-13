@@ -18,7 +18,7 @@ model tb_curso {
   nombre_curso               String             @db.VarChar(200)
   slug_curso                 String             @db.VarChar(200)
   descripcion_curso          String             @db.VarChar(1000)
-  tipo_precio_curso          String             @db.VarChar(20)
+  tipo_precio_curso          String             @default("0") @db.VarChar(20)
   precio_regular_curso       Decimal            @db.Decimal(15, 2)
   precio_descuento_curso     Decimal            @db.Decimal(15, 2)
   video_introductorio_curso  String             @db.VarChar(1000)
@@ -51,18 +51,19 @@ model tb_genero {
 }
 
 model tb_leccion {
-  id_leccion               Int       @id @default(autoincrement())
-  nombre_leccion           String    @db.VarChar(200)
-  descripcion_leccion      String    @db.VarChar(200)
-  imagen_destacada_leccion String    @db.VarChar(300)
-  url_video_leccion        String    @db.VarChar(1000)
+  id_leccion               Int                   @id @default(autoincrement())
+  nombre_leccion           String                @db.VarChar(200)
+  descripcion_leccion      String                @db.VarChar(200)
+  imagen_destacada_leccion String                @db.VarChar(300)
+  url_video_leccion        String                @db.VarChar(1000)
   duracion_hora_leccion    Int
   duracion_minuto_leccion  Int
   duracion_segundo_leccion Int
-  fecha_registro_leccion   DateTime  @default(now()) @db.DateTime(0)
-  progreso_leccion         Boolean   @default(false)
+  fecha_registro_leccion   DateTime              @default(now()) @db.DateTime(0)
+  progreso_leccion         Boolean               @default(false)
   fk_id_modulo             Int
-  tb_modulo                tb_modulo @relation(fields: [fk_id_modulo], references: [id_modulo], onDelete: Cascade, map: "tb_leccion_ibfk_1")
+  tb_modulo                tb_modulo             @relation(fields: [fk_id_modulo], references: [id_modulo], onDelete: Cascade, map: "tb_leccion_ibfk_1")
+  tb_progreso_leccion      tb_progreso_leccion[]
 
   @@index([fk_id_modulo], map: "fk_id_modulo")
 }
@@ -134,32 +135,33 @@ model tb_tipo_documento {
 }
 
 model tb_usuario {
-  id_usuario               Int                @id @default(autoincrement())
-  nombre_usuario           String             @db.VarChar(100)
-  apellido_usuario         String             @db.VarChar(100)
-  nickname_usuario         String             @unique(map: "nickname_usuario") @db.VarChar(100)
-  contra_usuario           String             @db.VarChar(300)
-  contra_usuario_original  String             @db.VarChar(300)
-  fecha_registro_usuario   DateTime?          @db.DateTime(0)
-  fecha_nacimiento_usuario DateTime           @db.Date
+  id_usuario               Int                   @id @default(autoincrement())
+  nombre_usuario           String                @db.VarChar(100)
+  apellido_usuario         String                @db.VarChar(100)
+  nickname_usuario         String                @unique(map: "nickname_usuario") @db.VarChar(100)
+  contra_usuario           String                @db.VarChar(300)
+  contra_usuario_original  String                @db.VarChar(300)
+  fecha_registro_usuario   DateTime?             @db.DateTime(0)
+  fecha_nacimiento_usuario DateTime              @db.Date
   estado_usuario           Boolean
   fk_id_rol_usuario        Int
-  email_usuario            String             @unique(map: "email_usuario") @db.VarChar(200)
-  telefono_detalle_usuario String?            @db.VarChar(30)
-  pais_detalle_usuario     String?            @db.VarChar(50)
-  provincia_usuario        String?            @db.VarChar(50)
-  ocupacion_usuario        String?            @db.VarChar(100)
-  url_foto_perfil_usuario  String?            @db.VarChar(300)
-  url_foto_portada_usuario String?            @db.VarChar(300)
+  email_usuario            String                @unique(map: "email_usuario") @db.VarChar(200)
+  telefono_detalle_usuario String?               @db.VarChar(30)
+  pais_detalle_usuario     String?               @db.VarChar(50)
+  provincia_usuario        String?               @db.VarChar(50)
+  ocupacion_usuario        String?               @db.VarChar(100)
+  url_foto_perfil_usuario  String?               @db.VarChar(300)
+  url_foto_portada_usuario String?               @db.VarChar(300)
   fk_id_genero             Int?
   fk_id_tipo_documento     Int?
-  numero_documento_usuario String?            @db.VarChar(20)
+  numero_documento_usuario String?               @db.VarChar(20)
   tb_curso                 tb_curso[]
   tb_pedido_curso          tb_pedido_curso[]
+  tb_progreso_leccion      tb_progreso_leccion[]
   tb_review                tb_review[]
-  tb_rol_usuario           tb_rol_usuario     @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], map: "tb_usuario_ibfk_1")
-  tb_genero                tb_genero?         @relation(fields: [fk_id_genero], references: [id_genero], onDelete: Cascade, map: "tb_usuario_ibfk_2")
-  tb_tipo_documento        tb_tipo_documento? @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onDelete: Cascade, map: "tb_usuario_ibfk_3")
+  tb_rol_usuario           tb_rol_usuario        @relation(fields: [fk_id_rol_usuario], references: [id_rol_usuario], map: "tb_usuario_ibfk_1")
+  tb_genero                tb_genero?            @relation(fields: [fk_id_genero], references: [id_genero], onDelete: Cascade, map: "tb_usuario_ibfk_2")
+  tb_tipo_documento        tb_tipo_documento?    @relation(fields: [fk_id_tipo_documento], references: [id_tipo_documento], onDelete: Cascade, map: "tb_usuario_ibfk_3")
 
   @@index([fk_id_genero], map: "fk_id_genero")
   @@index([fk_id_rol_usuario], map: "fk_id_rol_usuario")
@@ -173,4 +175,16 @@ model tb_venta {
   tb_pedido_curso        tb_pedido_curso @relation(fields: [fk_id_pedido], references: [id_pedido_curso], map: "tb_venta_ibfk_1")
 
   @@index([fk_id_pedido], map: "fk_id_pedido")
+}
+
+model tb_progreso_leccion {
+  id_progreso_leccion Int        @id @default(autoincrement())
+  fk_id_usuario       Int
+  fk_id_leccion       Int
+  visto               Boolean    @default(false)
+  tb_leccion          tb_leccion @relation(fields: [fk_id_leccion], references: [id_leccion], onDelete: Cascade, map: "tb_progreso_leccion_ibfk_1")
+  tb_usuario          tb_usuario @relation(fields: [fk_id_usuario], references: [id_usuario], onDelete: Cascade, map: "tb_progreso_leccion_ibfk_2")
+
+  @@index([fk_id_leccion], map: "fk_id_leccion")
+  @@index([fk_id_usuario], map: "fk_id_usuario")
 }

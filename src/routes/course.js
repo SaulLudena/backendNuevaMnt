@@ -49,7 +49,7 @@ routes.post(
       const data = curso;
       //variable para almacenar el id del administrador o el docente
       let id_user;
-      console.log(req.files);
+
       //verificamos que haya un token para agregar un curso
       if (nuevamntToken !== undefined) {
         //asignamos el codigo del usuario encontrado a la variable
@@ -213,6 +213,7 @@ routes.post("/getCourseById", async (req, res) => {
           tb_categoria_curso: true,
         },
       });
+
       /*validamos que el curso exista */
       if (getCourseById.length > 0) {
         res.json({

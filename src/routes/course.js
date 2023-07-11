@@ -49,7 +49,6 @@ routes.post(
       const data = curso;
       //variable para almacenar el id del administrador o el docente
       let id_user;
-
       //verificamos que haya un token para agregar un curso
       if (nuevamntToken !== undefined) {
         //asignamos el codigo del usuario encontrado a la variable
@@ -120,17 +119,23 @@ routes.post(
               fk_id_curso: courseRegistered.id_curso,
             },
           });
-
           //registrando las lecciones
-          modulos_curso_array.map(async (modulo, index) => {
+          modulos_curso_array.map(async (modulo, moduleIndex) => {
             const lessonsArray = modulo.lessons.map((lesson, index) => {
               return {
                 nombre_leccion: lesson.leccion_titulo || "",
                 descripcion_leccion: lesson.leccion_descripcion || "",
                 imagen_destacada_leccion:
-                  process.env.DOMAIN +
-                    "/" +
-                    req.files.leccion_imagen[index].path || "",
+                  req.files.leccion_imagen && req.files.leccion_imagen[0]
+                    ? process.env.DOMAIN +
+                      "/" +
+                      req.files.leccion_imagen[0].destination.replace(
+                        "assets/",
+                        ""
+                      ) +
+                      "/" +
+                      req.files.leccion_imagen[0].filename
+                    : "",
                 url_video_leccion: lesson.leccion_enlace || "",
                 duracion_hora_leccion:
                   parseInt(lesson.leccion_duracion_horas) || 0,
@@ -139,8 +144,11 @@ routes.post(
                 duracion_segundo_leccion:
                   parseInt(lesson.leccion_duracion_segundos) || 0,
                 fecha_registro_leccion: new Date(horaActual) || "",
-                progreso_leccion: false,
-                fk_id_modulo: getModulesById[index].id_modulo || null,
+
+                fk_id_modulo: getModulesById[moduleIndex].id_modulo || null,
+                tipo_visualizacion_leccion: parseInt(
+                  lesson.leccion_modo_visualizacion
+                ),
               };
             });
             await prisma.tb_leccion.createMany({
@@ -211,6 +219,12 @@ routes.post("/getCourseById", async (req, res) => {
           },
           tb_recursos: true,
           tb_categoria_curso: true,
+          tb_usuario: {
+            select: {
+              nombre_usuario: true,
+              url_foto_perfil_usuario: true,
+            },
+          },
         },
       });
 
@@ -314,6 +328,47 @@ routes.post("/getRegisteredCousesByAdminOrInstructor", async (req, res) => {
         getRegisteredCousesByAdminOrInstructor:
           getRegisteredCousesByAdminOrInstructor,
       });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/*metodo para descargar un archivo en base a un id de recurso, un id del curso y un token */
+routes.get("/downloadFileById", async (req, res) => {
+  try {
+    /*recuperamos el id del curso y el token del administrador o docente */
+    const { id_recurso, id_curso, nuevamntToken } = req.query;
+    /*variable para almacenar el id del administrador o el docente */
+    let id_user;
+    /*verificamos que haya un token para agregar un curso */
+    if (nuevamntToken !== undefined) {
+      /*asignamos el codigo del usuario encontrado a la variable */
+      jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
+        err ? res.status(401).json() : (id_user = decoded.id);
+      });
+
+      /*buscamos el curso en base al id del curso y al id del usuario, retornar todos los modulos y lecciones en base al id del modulo */
+      const downloadFileById = await prisma.tb_recursos.findMany({
+        where: {
+          id_recurso: parseInt(id_recurso),
+          fk_id_curso_recurso: parseInt(id_curso),
+          fk_id_usuario_recurso: id_user,
+        },
+      });
+      /*validamos que el curso exista */
+      if (downloadFileById.length > 0) {
+        res.json({
+          status: 200,
+          message: "Archivo encontrado",
+          downloadFileById: downloadFileById,
+        });
+      } else {
+        res.json({
+          status: 404,
+          message: "Archivo no encontrado",
+        });
+      }
     }
   } catch (error) {
     console.log(error);

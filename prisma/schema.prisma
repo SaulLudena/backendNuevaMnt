@@ -51,19 +51,19 @@ model tb_genero {
 }
 
 model tb_leccion {
-  id_leccion               Int                   @id @default(autoincrement())
-  nombre_leccion           String                @db.VarChar(200)
-  descripcion_leccion      String                @db.VarChar(200)
-  imagen_destacada_leccion String                @db.VarChar(300)
-  url_video_leccion        String                @db.VarChar(1000)
-  duracion_hora_leccion    Int
-  duracion_minuto_leccion  Int
-  duracion_segundo_leccion Int
-  fecha_registro_leccion   DateTime              @default(now()) @db.DateTime(0)
-  progreso_leccion         Boolean               @default(false)
-  fk_id_modulo             Int
-  tb_modulo                tb_modulo             @relation(fields: [fk_id_modulo], references: [id_modulo], onDelete: Cascade, map: "tb_leccion_ibfk_1")
-  tb_progreso_leccion      tb_progreso_leccion[]
+  id_leccion                 Int                   @id @default(autoincrement())
+  nombre_leccion             String                @db.VarChar(200)
+  descripcion_leccion        String                @db.VarChar(200)
+  imagen_destacada_leccion   String                @db.VarChar(300)
+  url_video_leccion          String                @db.VarChar(1000)
+  duracion_hora_leccion      Int
+  duracion_minuto_leccion    Int
+  duracion_segundo_leccion   Int
+  fecha_registro_leccion     DateTime              @default(now()) @db.DateTime(0)
+  fk_id_modulo               Int
+  tipo_visualizacion_leccion Int                  @default(1)
+  tb_modulo                  tb_modulo             @relation(fields: [fk_id_modulo], references: [id_modulo], onDelete: Cascade, map: "tb_leccion_ibfk_1")
+  tb_progreso_leccion        tb_progreso_leccion[]
 
   @@index([fk_id_modulo], map: "fk_id_modulo")
 }

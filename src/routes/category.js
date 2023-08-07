@@ -3,6 +3,7 @@ const routes = express.Router();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+/*ruta para obtener todas las categorias de cursos */
 routes.get("/getAllCategories", async (req, res) => {
   try {
     const getAllCategories = await prisma.tb_categoria_curso.findMany();
@@ -11,6 +12,7 @@ routes.get("/getAllCategories", async (req, res) => {
     console.log(error);
   }
 });
+
 /*ruta para actualizar una categoria por id*/
 routes.put("/updateCategory", async (req, res) => {
   try {
@@ -28,6 +30,7 @@ routes.put("/updateCategory", async (req, res) => {
     console.log(error);
   }
 });
+
 /*ruta para agregar una nueva categoria */
 routes.post("/addCategory", async (req, res) => {
   try {
@@ -43,5 +46,4 @@ routes.post("/addCategory", async (req, res) => {
   }
 });
 
-/*metodo para listar todos los cursos*/
 module.exports = routes;

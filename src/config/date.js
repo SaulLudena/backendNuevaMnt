@@ -1,3 +1,4 @@
+//configuramos la fecha y hora actual para la base de datos
 let date = new Date(),
   año = date.getFullYear(),
   mes = ("0" + (date.getMonth() + 1)).slice(-2),

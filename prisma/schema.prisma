@@ -74,10 +74,12 @@ model tb_modalidad_curso {
 
 model tb_modulo {
   id_modulo             Int          @id @default(autoincrement())
+
   nombre_modulo         String       @db.VarChar(200)
   resumen_modulo        String       @db.VarChar(200)
   fecha_registro_modulo DateTime?    @db.DateTime(0)
   fk_id_curso           Int
+  
   tb_leccion            tb_leccion[]
   tb_curso              tb_curso     @relation(fields: [fk_id_curso], references: [id_curso], onDelete: Cascade, map: "tb_modulo_ibfk_1")
 

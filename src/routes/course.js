@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const horaActual = require("../config/date");
 const multer = require("multer");
 
-// Configuración de Multer para almacenar las imagenes del curso
+// Configuración de Multer para almacenar los archivos del curso
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const fieldName = file.fieldname;
@@ -334,6 +334,49 @@ routes.post("/getRegisteredCousesByAdminOrInstructor", async (req, res) => {
   }
 });
 
+/*metodo para listar los cursos que hayan sido adquiridos por un usuario*/
+routes.post("/getCoursesPurchasedByUser", async (req, res) => {
+  try {
+    const { nuevamntToken } = req.body;
+    let id_user;
+
+    if (nuevamntToken !== undefined) {
+      jwt.verify(nuevamntToken, process.env.SECRET_KEY, (err, decoded) => {
+        err ? res.status(401).json() : (id_user = decoded.id);
+      });
+
+      const purchases = await prisma.tb_venta.findMany({
+        where: {
+          tb_pedido_curso: {
+            tb_usuario: {
+              id_usuario: id_user,
+            },
+          },
+        },
+        include: {
+          tb_pedido_curso: {
+            include: {
+              tb_curso: {
+                include: {
+                  tb_modulo: {
+                    include: {
+                      tb_leccion: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      res.json({ purchases });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 /*metodo para descargar un archivo en base a un id de recurso, un id del curso y un token */
 routes.get("/downloadFileById", async (req, res) => {
   try {
@@ -375,4 +418,46 @@ routes.get("/downloadFileById", async (req, res) => {
   }
 });
 
+/*metodo para agregar un modulo en el apartado edicion de curso */
+routes.post("/addModuleByIdCourse", async (req, res) => {
+  try {
+    const { lastModule } = req.body;
+
+    const addModuleByIdCourse = await prisma.tb_modulo.create({
+      data: {
+        nombre_modulo: lastModule.moduleName || "",
+        resumen_modulo: lastModule.moduleDescription || "",
+        fecha_registro_modulo: new Date(horaActual) || "",
+        fk_id_curso: lastModule.course_id || null,
+      },
+    });
+    res.json({ addModuleByIdCourse: addModuleByIdCourse });
+  } catch (error) {
+    console.log(error);
+  }
+});
+/*metodo para editar un modulo en el apartado edicion de curso */
+routes.put("/editModuleByIdCourse", async (req, res) => {
+  try {
+    const { lastModule } = req.body;
+
+    const editModuleByIdCourse = await prisma.tb_modulo.update({
+      where: {
+        id_modulo: lastModule.module_id || undefined,
+      },
+      data: {
+        nombre_modulo: lastModule.newModuleName || "",
+        resumen_modulo: lastModule.newModuleDescription || "",
+      },
+    });
+    console.log(lastModule);
+  } catch (error) {
+    console.log(error);
+  }
+});
+/*metodo para eliminar un modulo en el apartado edicion de curso */
+
+/*metodo para agregar una leccion en el apartado edicion de curso */
+/*metodo para editar una leccion en el apartado edicion de curso */
+/*metodo para eliminar un leccion en el apartado edicion de curso */
 module.exports = routes;

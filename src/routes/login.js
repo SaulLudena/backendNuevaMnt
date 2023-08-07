@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+//metodo para logear a un usuario en base a un email y contraseña
 routes.post("/login", async (req, res) => {
   try {
     //recuperamos las credenciales
@@ -60,6 +61,7 @@ routes.post("/login", async (req, res) => {
   }
 });
 
+//metodo para decodificar el token y obtener su información
 routes.get("/protected", (req, res) => {
   // Verificar token
   try {
